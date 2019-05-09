@@ -1,0 +1,55 @@
+---
+title: "Tea Bag Decomposition Index in response to nutrient enrichment"
+author: "Megan Koceja, Ariane Peralta"
+date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
+output:
+  pdf_document: null
+  fig_caption: yes
+  html_document: default
+editor_options:
+  chunk_output_type: console
+---
+Project Description: XXX
+
+# Setting up working directory, packages
+```{r Setup, include=FALSE}
+rm(list = ls())
+setwd("~/Desktop/2018_WRC_Decomp/")
+
+#load req'd packages
+require("vegan")
+require("dplyr")
+require("nlme")
+require("lme4")
+require("reshape2")
+require("ggplot2")
+require("ade4")
+require("knitr")
+library("AICcmodavg")
+library("scales")
+
+# set std err
+se <- function(x, ...) {
+sd(x, na.rm = TRUE)/sqrt(length(na.omit(x)))
+}
+ci <- function(x, ...) {
+1.96 * sd(x, na.rm = TRUE)
+}
+```
+
+#Loading data file
+```{r Loading Files, include=FALSE}
+# load data file 
+TBI <- read.csv("./2018_WRC_TBI_Rstats.csv") #removed sampleID#17
+dim(TBI)
+```
+
+# relationship between S and k
+```{r Loading Files, include=FALSE}
+require(ggplot2)
+p <- ggplot(TBI, aes(x=S, y=k, color=as.factor(Treatment)))+scale_color_manual(name="Treatment", values=c("gray","darkgreen"), labels = c("Mowed", "Mowed/Fertilized")) + geom_point(size=4)
+p1=p+geom_point()
+TBI <- p1 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +theme(axis.title=element_text(vjust=1,size=18), axis.text=element_text(size=18), axis.text.x = element_text(vjust=0.65, hjust=0.5, size=18), panel.border = element_rect(colour = "black",size=1)) + theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Stabilization factor (S)", y = "Decomposition rate (k)") + theme(strip.text.x = element_text(size=18, face="bold"), strip.text.y = element_text(size=18, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1))
+TBI
+ggsave("./TBI.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=7, dpi=300, limitsize=TRUE)
+```
