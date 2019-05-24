@@ -296,7 +296,7 @@ plot1 <- ggplot(df1a, aes(x=V1, y=V2,  color=pcoa.col, shape = pcoa.shape,
 plot1 
 
 #Save a copy of the plot
-ggsave("../figures/16SrRNA_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
+ggsave("../WRC18_Rhizo/figures/16SrRNA_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -362,7 +362,7 @@ theme(axis.title=element_text(size=14,face="bold"),
           labs(x = "", y = "Chao1 species richness")
 chao
 #Save a copy of the plot
-ggsave("../figures/chao1.jpg", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../WRC18_Rhizo/figures/chao1.jpg", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 
 ```
@@ -416,7 +416,7 @@ theme(axis.title=element_text(size=14,face="bold"),
 
 shan
 
-ggsave("../figures/shannon.jpg", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../WRC18_Rhizo/figures/shannon.jpg", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 ```
 
 ```{r diversity metrics - Pielous evennes J}
@@ -451,7 +451,7 @@ theme_bw()  +
 
 even 
 
-ggsave("../figures/even.jpg", plot=even, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../WRC18_Rhizo/figures/even.jpg", plot=even, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -482,7 +482,7 @@ bio_NP_p<- ggplot(meta.env[-c(3,17),], aes(x=source, y=bio_NP, fill=treatment)) 
   geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","444444"))
 bio_NP_p
 
-ggsave("../figures/bio_NP.jpg", plot=bio_NP_p, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../WRC18_Rhizo/figures/bio_NP.jpg", plot=bio_NP_p, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 tot_NP <- aov(meta.env$tot_NP ~ treatment, meta.env)
 plot(tot_NP)
@@ -492,7 +492,7 @@ tot_NP_p<- ggplot(meta.env, aes(x=source, y=tot_NP, fill=treatment))  +
   geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","444444"))
 tot_NP_p
 
-ggsave("../figures/tot_NP.jpg", plot=tot_NP_p, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../WRC18_Rhizo/figures/tot_NP.jpg", plot=tot_NP_p, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 #KCl extractable Ammonium and Nitrate
 nh4 <- aov(meta.env$n_nh4_ug_gsoil ~ treatment, meta.env)
