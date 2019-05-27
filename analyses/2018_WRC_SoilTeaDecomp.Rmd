@@ -120,7 +120,7 @@ explainvar2b #10.1
 # Principal Coordinates Analysis - teas only #NEED to incorporate ditch
 new.data.t <-cbind(design.t,dataREL.t)
 droplevels(new.data.t$source)
-pcoa.groups <- paste(new.data.t$treatment, new.data.t$source, sep = "_")
+pcoa.groups <- paste(new.data.t$treatment, new.data.t$source, new.data.t$ditch, sep = "_")
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
 
 # Calculate Centroids (mean and SE)
@@ -136,6 +136,7 @@ pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
 
 pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
 pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
+pcoa.fill <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3))  # source
 
 #Plot
 df1a <- as.data.frame(pcoa.cent.dataframe)
@@ -145,13 +146,13 @@ plot1a + theme(panel.grid.major = element_blank(),
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
-  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = TRUE) +   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
-  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = TRUE) + 
   scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
                       values = c("gray", "darkgreen")) + 
-  scale_fill_manual(labels = c("mowed","mowed/fertilized"), 
-                      values = c("gray", "darkgreen")) +
+  #scale_fill_manual(labels = c("ditch (dry)","no ditch (wet)"), 
+                     # values = c("gray", "darkgreen")) +
+  #ditch=1 should be 'open' symbol and ditch=0 should be 'closed' symbol
   scale_shape_manual(labels = c("green_tea","rooibos_tea"),
                      values = c(21, 24)) +
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
@@ -362,6 +363,8 @@ ggsave("../figures/Ordination_tea_bulk.pdf", plot=last_plot(), device=NULL, path
 
 # Bacterial community indicator species analysis 2013 only - plant
 ```{r Bacteria Indicator Species, include=FALSE}
+tea.tax <- read.tax(taxonomy = "../data/tadpole.WRC18_opti_mcc.0.03.cons.taxonomy", 
+                    format = "rdp", tax.levels = 6, col.tax = 3)
 new.data <-cbind(design,dataREL)
 library("labdsv")
 
