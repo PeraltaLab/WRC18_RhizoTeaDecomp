@@ -245,9 +245,14 @@ write.csv(diversity,"../data/diversity.bact.raw.csv")
 # Diversity Metrics - Hypothesis Testing
 ```{r Hypothesis Testing - Bacteria, echo=TRUE}
 #summary table for bacterial diversity
-summary <- diversity %>% group_by(source, treatment, ditch) %>% summarise(mean.richness=mean(richness), se.richness=se(richness), mean.shannon=mean(shannon), se.shannon=se(shannon))
+summary <- diversity %>% group_by(source, treatment, ditch) %>% summarise(mean.richness=mean(richness), se.richness=se(richness), mean.shannon=mean(shannon), se.shannon=se(shannon),mean.evenness=mean(simp.even), se.evenness=se(simp.even))
 print(summary)
 write.csv(summary,"../data/diversity.bact.summary.csv")
+
+#summary table for soils
+summary <- diversity %>% group_by(source, treatment, ditch) %>% summarise(mean.soilC=mean(c_percent), se.soilC=se(c_percent), mean.soilN=mean(n_percent), se.soilN=se(n_percent),mean.soilCN=mean(C_N), se.soilCN=se(C_N),mean.ammonium=mean(n_nh4_ug_gsoil), se.ammonium=se(n_nh4_ug_gsoil),mean.nitrate=mean(n_no3_ug_gsoil), se.nitrate=se(n_no3_ug_gsoil),mean.phosphate=mean(p_po4_w_ug_gsoil), se.phosphate=se(p_po4_w_ug_gsoil))
+print(summary)
+write.csv(summary,"../data/diversity.soil.summary.csv")
 
 library(lmerTest)
 
@@ -269,26 +274,69 @@ anova(shannon.lm)
 
 #Plot shannon diversity 
 ```{r Plot - Shannon Diversity, echo=TRUE}
-# Graphing Shannon Diversity - Date x Plant over Mgmt
+ditch.labs <- c("wet (no ditch)", "dry (+ ditch)") #for facet labels
+names(ditch.labs) <- c("0", "1")
+# Graphing Shannon Diversity
 p <- ggplot(diversity, aes(x=source, y=shannon, color=as.factor(treatment)))+ scale_color_manual(name="Plant", values=c("gray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
-p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch)
+p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
           =element_line(colour = "black")) + 
     theme(axis.title=element_text(vjust=1,size=14,face="bold"),
           axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
           size=14), panel.border = element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Year", y = "Shannon Diversity Index (H')") + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "Shannon Diversity Index (H')") + 
     theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
   
-ggsave("../figures/shannon.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
+ggsave("../figures/shannon.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+#Plot richness 
+```{r Plot - OTU richness, echo=TRUE}
+# Graphing Shannon Diversity
+p <- ggplot(diversity, aes(x=source, y=richness, color=as.factor(treatment)))+ scale_color_manual(name="Plant", values=c("gray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75)
+p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
+p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
+          size=14), panel.border = element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "OTU richness") + 
+    theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", size=1)) +
+    scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
+          "rooibos"))
+  
+ggsave("../figures/richness.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+
+#Plot Simpson's Evenness
+```{r Plot Simpson's Evenness, echo=TRUE}
+# Graphing Shannon Diversity
+p <- ggplot(diversity, aes(x=source, y=simp.even, color=as.factor(treatment)))+ scale_color_manual(name="Plant", values=c("gray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
+p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
+p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
+          size=14), panel.border = element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "Simpson's Evenness") + 
+    theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", size=1)) +
+    scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
+          "rooibos"))
+  
+ggsave("../figures/evenness.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 # Simple Hypothesis Testing - Microbes
-```{r perMANOVA - Bacteria - All Yrs, echo=TRUE}
+```{r perMANOVA - Bacteria - All sources, echo=TRUE}
 #PERMANOVA
 new.data <-cbind(design_final,dataREL)
 adonis = adonis(new.data[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data, perm=1000)
@@ -296,83 +344,15 @@ adonis
 ```
 # Bacterial Ordinations
 
-## Principal Coordinates Ordination
-```{r Ordination (PCoA) - Bacteria - all years, include=FALSE}
-# Principal Coordinates Analysis
-dataREL.dist <- vegdist(dataREL, method="bray")
-
-pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
-  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
-  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
-
-explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
-explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
-sum.eigb <- sum(explainvar1b, explainvar2b)
-
-explainvar1b #43.3
-explainvar2b #10.6
-```
-
-```{r Ordination (PCoA) - Bacteria, include=FALSE}
-# Principal Coordinates Analysis 
-# Principal Coordinates Analysis - teas only #NEED to incorporate ditch - graphing incomplete
-pcoa.groups <- paste(new.data$source, new.data$treatment, sep = "_")
-pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
-
-# Calculate Centroids (mean and SE)
-pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
-pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
-pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
-pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
-
-# Combine
-pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
-colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
-pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
-
-pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
-pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
-
-#Plot
-df2a <- as.data.frame(pcoa.cent.dataframe)
-plot2a <- ggplot(df2a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
-                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
-plot2a + theme(panel.grid.major = element_blank(), 
-               panel.grid.minor = element_blank(), 
-               axis.line = element_line(colour = "black")) + 
-theme(panel.background = element_blank()) + 
-  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
-  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = TRUE) + 
-  scale_fill_manual(labels = c("mowed","mowed/fertilized"), 
-                      values = c("gray", "darkgreen")) + 
-  scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
-                      values = c("gray", "darkgreen")) + 
-  scale_shape_manual(labels = c("bulk_soil","green_tea","rooibos_tea"),
-                     values = c(21, 24, 25)) +
-  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
-          axis.text.x = element_text(size=14), 
-          panel.border = element_rect(colour = "black", size=1.25)) + 
-  theme(axis.ticks.length=unit(0.3,"cm")) + 
-  xlab("PCoA 1 (43.3%)") + ylab("PCoA 2 (10.6%)") + 
-  labs(fill = "treatment", shape = "source") +
-  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
-         shape = guide_legend(override.aes = list(size = 4, fill="black")))
-ggsave("../figures/Ordination_tea_bulk.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
-```
-
-# Bacterial community indicator species analysis 2013 only - plant
+# Bacterial community indicator species
 ```{r Bacteria Indicator Species, include=FALSE}
-tea.tax <- read.tax(taxonomy = "../data/tadpole.WRC18_opti_mcc.0.03.cons.taxonomy", 
-                    format = "rdp", tax.levels = 6, col.tax = 3)
-new.data <-cbind(design,dataREL)
+#new.data <-cbind(design_final,dataREL) - includes bulk and tea sources
 library("labdsv")
+group = interaction(new.data$source, new.data$treatment)
+design.type <- group #treatment x fertilization
+dataREL.t <- new.data[,-c(1:16)]
 
-new.data.2013 <- subset(new.data, Year == 2013)
-design.type <- new.data.2013$Plant
-dataREL.2013 <- new.data.2013[,-c(1:9)]
-
-dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
+dataREL <- dataREL.t[, colSums(dataREL.t) > 0.05]
 bac.ind <- indval(dataREL, design.type)
 levels(design.type)
 summary(bac.ind)
@@ -399,39 +379,6 @@ table(indicator.bac$Cluster)
 levels(design.type)
 
 # Export Bacteria Indicator Table
-write.table(indicator.bac, "../data/BacterialIndicators_Plant.txt",
-            sep="\t", row.names = F, quote = F)
-
-#bac.ind - by management
-design.type <- design$Management
-
-dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
-bac.ind <- indval(dataREL, design.type)
-levels(design.type)
-summary(bac.ind)
-
-inds <- which(bac.ind$pval <= 0.05)
-bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
-colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
-
-bac.indicators$OTU <- names(inds)
-bac.indicators$Cluster <- bac.ind$maxcls[inds]
-bac.indicators$IndVal <- bac.ind$indcls[inds]
-bac.indicators$Prob <- bac.ind$pval[inds]
-
-ind.tax <- otu.tax[which(as.character(otu.tax$OTU) %in% bac.indicators$OTU), ]
-ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
-
-indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
-
-indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
-
-table(indicator.bac$Cluster)
-table(indicator.bac$Phylum)
-table(indicator.bac$Cluster)
-levels(design.type)
-
-# Export Bacteria Indicator Table
-write.table(indicator.bac, "../data/BacterialIndicators_Mgmt.txt",
+write.table(indicator.bac, "../data/BacterialIndicators_source.txt",
             sep="\t", row.names = F, quote = F)
 ```
