@@ -135,35 +135,39 @@ colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
 pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
 trt.t <- c("M","M","M","M","MF","MF","MF","MF")
 source.ditch.t <- c("green_tea (wet_0ditch)","green_tea (dry_1ditch)","rooibos_tea (wet_0ditch)","rooibos_tea (dry_1ditch)","green_tea (wet_0ditch)","green_tea (dry_1ditch)","rooibos_tea (wet_0ditch)","rooibos_tea (dry_1ditch)")
-pcoa.cent.dataframe.trts <- cbind(pcoa.cent.dataframe,trt.t,source.ditch.t) 
+pcoa.cent.dataframe.trts <- as.data.frame(pcoa.cent.dataframe)
+pcoa.cent.dataframe.trts$trt <- as.factor(trt.t)
+pcoa.cent.dataframe.trts$source <- as.factor(source.ditch.t)
 
 #pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # group
 #pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1)) # group
 
 #Plot
 df1a <- as.data.frame(pcoa.cent.dataframe.trts)
-plot1a <- ggplot(df1a, aes(x=V1, y=V2, colour=trt.t, shape = source.ditch.t,
-                           group = interaction(trt.t, source.ditch.t))) + theme_bw() 
+plot1a <- ggplot(df1a, aes(x=V1, y=V2, colour=trt, shape = source,
+                           group = interaction(trt, source))) + theme_bw() 
 plot1a + theme(panel.grid.major = element_blank(), 
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
-  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
-  geom_point(aes(colour=trt.t), size=5, stroke = 0.75, show.legend = TRUE) +
-  scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
-                      values = c("darkgray", "darkgreen")) + 
-  scale_shape_manual(labels = c("green_tea (wet_0ditch)","green_tea (dry_1ditch)","rooibos_tea (wet_0ditch)","rooibos_tea (dry_1ditch"),
-                     values = c(21,16,24,17)) +
-  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
-          axis.text.x = element_text(size=14), 
-          panel.border = element_rect(colour = "black", size=1.25)) + 
-  theme(axis.ticks.length=unit(0.3,"cm")) + 
-  xlab("PCoA 1 (22.2%)") + ylab("PCoA 2 (10.1%)") 
+geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
+geom_point(aes(colour=trt.t), size=5, stroke = 1.25, show.legend = TRUE) +
+scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
+                    values = c("darkgray", "darkgreen")) + 
+scale_shape_manual(labels = c("green_tea (wet_0ditch)", 
+                              "green_tea (dry_1ditch)", 
+                              "rooibos_tea (wet_0ditch)",
+                              "rooibos_tea (dry_1ditch"), 
+                   values = c(21,16,24,17), fill = "white") +
+theme(axis.title = element_text(size=14), axis.text = element_text(size=14),
+      axis.text.x = element_text(size=14), 
+      panel.border = element_rect(colour = "black", size = 1.25)) + 
+theme(axis.ticks.length = unit(0.3, "cm")) + 
+xlab("PCoA 1 (22.2%)") + ylab("PCoA 2 (10.1%)") 
   #labs(fill = "treatment", shape = "source + ditch") +
   #guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          #shape = guide_legend(override.aes = list(size = 4, fill="black")))
-#ggsave("../figures/Ordination_tea.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
+ggsave("../figures/Ordination_tea.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
 ```
 
 ## Bacterial Data - including bulk and tea
