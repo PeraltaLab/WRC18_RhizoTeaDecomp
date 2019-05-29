@@ -37,6 +37,7 @@ require("tidyr")
 require("dplyr")
 require("reshape2")
 require("picante")
+require("phyloseq")
 ```
 #Import Files
 ## Environmental Data
@@ -512,4 +513,372 @@ levels(design.type)
 # Export Bacteria Indicator Table
 write.table(indicator.bac, "../data/BacterialIndicators_source.txt",
             sep="\t", row.names = F, quote = F)
+```
+
+```{r load taxonomy data into phyloseq object}
+# Import otu and tax into phyloseq
+otu <- otu_table(t(otus), taxa_are_rows = T)
+taxfile="../data/WRC18_opti_mcc.0.03.cons.taxonomy"
+tax <- import_mothur(mothur_constaxonomy_file =  taxfile)
+#rownames(meta) <- meta$group
+sample <- sample_data(design_final)
+#import into phyloseq
+phy<-phyloseq(otu,tax)
+row.names(sample)=sample_names(phy)
+#sample_names(sample)
+#sample_names(phy)
+#Assign rownames to be Sample ID's
+# Merge mothurdata object with sample metadata
+meta_merge <- merge_phyloseq(phy,sample)
+#assign column names
+colnames(tax_table(meta_merge))
+colnames(tax_table(meta_merge)) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus")
+colnames(tax_table(meta_merge))
+rank_names(meta_merge)
+```
+
+```{r phyloseq Phylum stacked graph of taxa composition}
+
+# melt to long format (for ggploting) 
+# prune out phyla below 2% in each sample
+wrc_phylum <- meta_merge %>%
+  tax_glom(taxrank = "Phylum") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, source!="bulk_soil") %>%                        # Filter out low abundance taxa
+  arrange(Phylum)                                      # Sort data frame alphabetically by phylum
+
+# Set colors for plotting
+phylum_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_phylum$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_phylum, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_phylum, aes(x = Phylum, y = Abundance, fill = i)) + 
+  facet_wrap(~treatment) +
+  geom_bar(stat = "summary", fun.y = "mean") +
+  scale_fill_manual(values = phylum_colors) +
+  # Remove x axis title
+  theme_bw()+
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  xlab ("Phylum") +
+  ylab("Relative Abundance > 1.0% \n") +
+  ggtitle("Phylum Composition of Bacterial Communities")
+
+wrc_plot + coord_flip()
+
+p <- aov(Abundance ~ source*treatment*ditch + (1|block), wrc_phylum)
+plot(p)
+anova(p)
+
+wrc_phylum_means <- wrc_phylum %>%
+  group_by(source, Phylum) %>%
+  summarise_at(c("Abundance"), mean, na.rm=TRUE)
+
+write.csv(wrc_phylum_means[,c(1:5,24)], file = "../figures/wrc_phylum_means.csv",row.names=TRUE)
+
+write.csv(wrc_phylum, file="../figures/phylum_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/phylum_stack.pdf", width=9, height=9, dpi=300)
+
+```
+```{r phyloseq Class stacked graphs of taxa composition}
+# melt to long format (for ggploting) 
+# prune out phyla below 2% in each sample
+wrc_class <- meta_merge %>%
+  tax_glom(taxrank = "Class") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, source!="bulk_soil") %>%    # Filter out low abundance taxa
+  arrange(Class)                                     # Sort data frame alphabetically by phylum
+
+# Set colors for plotting
+class_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_class$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_class, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_class, aes(x = Class, y = Abundance, fill = i)) + 
+  facet_grid(.~treatment)+#, labeller=labeller(ditch=labels)) +
+  geom_bar(stat = "summary", fun.y = "mean") + 
+  scale_fill_manual(values = class_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ 
+  ylab("Class Relative Abundance > 1.0%") +
+  xlab("Treatment") +
+  labs(fill="Treatment") +
+  ggtitle("Class Composition of Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+p <- aov(Abundance ~ source*treatment*ditch + (1|block), wrc_class)
+plot(p)
+anova(p)
+
+wrc_class_means <- wrc_class %>%
+  group_by(source, Class) %>%
+  summarise_at(c("Abundance"), mean, na.rm=TRUE)
+
+write.csv(wrc_class_means, file="../figures/class_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/class_stack.pdf", width=9, height=9, dpi=300)
+
+```
+
+```{r phyloseq Family - Alphaproteobacteria  stacked graphs of taxa composition}
+# melt to long format (for ggploting) 
+# prune out phyla below 1% in each sample
+wrc_family <- meta_merge %>%
+  tax_glom(taxrank = "Family") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, Class == "Alphaproteobacteria", source!="bulk_soil") %>%                      arrange(Family)                                     # Sort data frame alphabetically by phylum
+
+# wrc_family
+# Set colors for plotting
+family_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_family$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_family, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) + 
+  geom_bar(stat = "summary", fun.y = "mean") +
+  facet_wrap(~treatment)+
+  scale_fill_manual(values = family_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ 
+  theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14))+
+  ylab("Relative Abundance > 1%") +
+  xlab("Family Name")+
+  labs(fill="Treatment") +
+  ggtitle("Alphaproteobacteria Composition of \n Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+p <- aov(Abundance ~ source*treatment*ditch + (1|block), wrc_family)
+plot(p)
+anova(p)
+
+wrc_family_means <- wrc_family %>%
+  group_by(source, Family) %>%
+  summarise_at(c("Abundance"), mean, na.rm=TRUE)
+
+write.csv(wrc_family_means, file="../figures/alpha_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/alpha_family_stack.pdf", width=15, height=9, dpi=300)
+
+```
+```{r phyloseq Family - Deltaproteobacteria  stacked graphs of taxa composition}
+# melt to long format (for ggploting) 
+# prune out phyla below 1% in each sample
+wrc_family <- meta_merge %>%
+  tax_glom(taxrank = "Family") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, Class == "Deltaproteobacteria", source!="bulk_soil") %>%                      arrange(Family)                                     # Sort data frame alphabetically by phylum
+
+# wrc_family
+# Set colors for plotting
+family_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_family$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_family, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) + 
+  geom_bar(stat = "summary", fun.y = "mean") +
+  facet_wrap(~treatment)+
+  scale_fill_manual(values = family_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ 
+  theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14))+
+  ylab("Relative Abundance > 1%") +
+  xlab("Family Name")+
+  ggtitle("Deltaproteobacteria Composition of \n Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+p <- aov(Abundance ~ source*treatment*ditch + (1|block), wrc_family)
+plot(p)
+anova(p)
+
+wrc_family_means <- wrc_family %>%
+  group_by(source, Family) %>%
+  summarise_at(c("Abundance"), mean, na.rm=TRUE)
+
+write.csv(wrc_family_means, file="../figures/delta_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/delta_family_stack.pdf", width=15, height=9, dpi=300)
+
+```
+
+
+```{r phyloseq Family - Gammaproteobacteria  stacked graphs of taxa composition}
+# prune out phyla below 1% in each sample
+wrc_family <- meta_merge %>%
+  tax_glom(taxrank = "Family") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, Class == "Gammaproteobacteria", source!="bulk_soil") %>%  # Filter out low abundance taxa
+  arrange(Family)                                     # Sort data frame alphabetically by phylum
+
+# Set colors for plotting
+family_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_family$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_family, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) + 
+  facet_grid(~treatment)+
+  geom_bar(stat = "summary", fun.y = "mean") +
+  scale_fill_manual(values = family_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14))+
+  ylab("Relative Abundance > 1%") +
+  xlab("Family Name")+
+  ggtitle("Gammaproteobacteria Composition of \n Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+write.csv(wrc_family, file="gamma_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/gamma_family_stack.pdf", width=15, height=9, dpi=300)
+```
+
+
+```{r phyloseq Family - Betaproteobacteria  stacked graphs of taxa composition}
+# prune out phyla below 1% in each sample
+wrc_family <- meta_merge %>%
+  tax_glom(taxrank = "Family") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, Class == "Betaproteobacteria", source!="bulk_soil") %>% # Filter out low abundance taxa
+  arrange(Family)                                     # Sort data frame alphabetically by phylum
+
+# Set colors for plotting
+family_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_family$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_family, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) + 
+  facet_grid(~treatment)+
+  geom_bar(stat = "summary", fun.y = "mean") +
+  scale_fill_manual(values = family_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14))+
+  ylab("Relative Abundance > 1%") +
+  xlab("Family Name")+
+  ggtitle("Betaproteobacteria Composition of \n Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+write.csv(wrc_family, file="beta_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/beta_family_stack.pdf", width=15, height=9, dpi=300)
+```
+
+```{r phyloseq Family - Actinobacteria  stacked graphs of taxa composition}
+# prune out phyla below 1% in each sample
+wrc_family <- meta_merge %>%
+  tax_glom(taxrank = "Family") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, Class == "Actinobacteria", source!="bulk_soil") %>% # Filter out low abundance taxa
+  arrange(Family)                                     # Sort data frame alphabetically by phylum
+
+# Set colors for plotting
+family_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_family$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_family, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) + 
+  facet_grid(~treatment)+
+  geom_bar(stat = "summary", fun.y = "mean") +
+  scale_fill_manual(values = family_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14))+
+  ylab("Relative Abundance > 1%") +
+  xlab("Family Name")+
+  ggtitle("Actinobacteria Composition of \n Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+write.csv(wrc_family, file="actino_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/actino_family_stack.pdf", width=15, height=9, dpi=300)
+```
+
+```{r phyloseq Family - Rhodospirillaceae genus stacked graphs of taxa composition}
+# prune out phyla below 1% in each sample
+wrc_family <- meta_merge %>%
+  tax_glom(taxrank = "Genus") %>%                     # agglomerate at phylum level
+  transform_sample_counts(function(x) {x/sum(x)} ) %>% # Transform to rel. abundance
+  psmelt() %>%                                         # Melt to long format
+  filter(Abundance > 0.01, Family == "Rhodospirillaceae", source!="bulk_soil") %>% # Filter out low abundance taxa
+  arrange(Genus)                                     # Sort data frame alphabetically by phylum
+
+# Set colors for plotting
+family_colors <- c("darkgreen", "darkred","blue", "orange")
+levels(wrc_family$source) <- c("Bulk soil", "Green Tea", "Rooibos Tea")
+labels <- c("0" = "Wet", "1" = "Dry")
+
+i <- with(wrc_family, interaction(source, ditch))
+
+levels(i) <- c("Bulk soil - Wet", "Green tea - Wet", "Rooibos tea - Wet", "Bulk soil - Dry", "Green tea - Dry", "Rooibos tea - Dry")
+
+# Plot 
+wrc_plot<- ggplot(wrc_family, aes(x = Genus, y = Abundance, fill = i)) + 
+  facet_grid(~treatment)+
+  geom_bar(stat = "summary", fun.y = "mean") +
+  scale_fill_manual(values = family_colors) +
+  theme_bw()  +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(size=14))+
+  ylab("Relative Abundance > 1%") +
+  xlab("Genus Name")+
+  ggtitle("Rhodospirillaceae Composition of \n Bacterial Communities") 
+
+wrc_plot + coord_flip() 
+
+write.csv(wrc_family, file="rhodo_composition.csv", row.names=TRUE)
+
+ggsave(file="../figures/rhodo_family_stack.pdf", width=15, height=9, dpi=300)
 ```
