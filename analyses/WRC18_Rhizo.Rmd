@@ -494,14 +494,29 @@ tot_NP_p
 
 ggsave("../WRC18_Rhizo/figures/tot_NP.jpg", plot=tot_NP_p, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
+metafile.env = "../data/WRC18_Rhizo/2018_WestResearchCampus_Sampling_Summary.csv"
+
+#Read in design file
+meta.env <- read.csv(metafile.env)
+
+by_treatment <- meta.env %>%
+  group_by(treatment) %>%
+  summarise_all(funs(mean,sd), na.rm=T)
+
+write.csv(t(by_treatment), file = "../figures/WRC18_Rhizo/by_treatment.csv",row.names=TRUE)
+
+
 #KCl extractable Ammonium and Nitrate
-nh4 <- aov(meta.env$n_nh4_ug_gsoil ~ treatment, meta.env)
+meta.env <- meta.env %>%
+  filter(source=="bulk")
+
+nh4 <- aov(meta.env$n_nh4_ug_gsoil ~ treatment*ditch, meta.env)
 plot(nh4)
 anova(nh4)
 
 nh4<- ggplot(meta.env, aes(x=source, y=n_nh4_ug_gsoil, fill=treatment))  +
   geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333", "444444"))+
-  facet_grid(meta.env$year)
+  facet_grid(meta.env$ditch)
 nh4
 
 
@@ -509,8 +524,9 @@ pH <- aov(pH ~ treatment , meta.env)
 plot(pH)
 anova(pH)
 
-ppH<- ggplot(meta.env, aes(x=treatment, y=pH, fill=plant))  +
-  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000", "333333"))
+ppH<- ggplot(meta.env, aes(x=source, y=pH, fill=treatment))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000", "333333", "444444"))+
+  facet_grid(meta.env$ditch)
 ppH
 
 #t <- HSD.test(pH, "i" , group=TRUE, alpha=0.05)
@@ -563,6 +579,7 @@ getwd()
 bulk <- read.csv("../data/WRC18_Rhizo/biolog_bulk.csv")
 grass <- read.csv("../data/WRC18_Rhizo/biolog_grass.csv")
 forb <- read.csv("../data/WRC18_Rhizo/biolog_forb.csv")
+AWCD_design <- read.csv("../data/WRC18_Rhizo/biolog_AWCD_design.csv")
 
 #bulk + forb + grass
 biolog_master <- rbind(bulk, grass, forb)
@@ -598,10 +615,19 @@ eco_reps_AWCD <- eco_reps_water %>%
   mutate(AWCD = sum(corr_abs)/31) 
 
 colnames(eco_reps_AWCD)
-eco_reps_AWCD_sub <- eco_reps_AWCD %>%
-  dplyr::select(timepoint, sample, AWCD)
-  
 
+eco_reps_AWCD_sub <- eco_reps_AWCD %>%
+  distinct(timepoint, sample, AWCD) %>%
+  filter(sample != "Blank")
+  #dplyr::select(timepoint, sample, AWCD)
+  
+eco_reps_AWCD_sub <- bind_cols(eco_reps_AWCD_sub,AWCD_design)
+
+#need to get average for each treatment source combo
+
+ggplot(data=eco_reps_AWCD_sub, aes(x=timepoint, y=AWCD, color=source, shape=treatment)) +
+  geom_line()+
+  geom_point()
 
 #have seen plotted as treatment over time, AWCD calculated for each timepoint line graph
 #also seen plotted as all treatments and one time point bar graph
