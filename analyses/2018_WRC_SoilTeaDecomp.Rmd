@@ -579,8 +579,6 @@ wrc_phylum_means <- wrc_phylum %>%
   group_by(source, Phylum) %>%
   summarise_at(c("Abundance"), mean, na.rm=TRUE)
 
-write.csv(wrc_phylum_means[,c(1:5,24)], file = "../figures/wrc_phylum_means.csv",row.names=TRUE)
-
 write.csv(wrc_phylum, file="../figures/phylum_composition.csv", row.names=TRUE)
 
 ggsave(file="../figures/phylum_stack.pdf", width=9, height=9, dpi=300)
@@ -882,4 +880,49 @@ wrc_plot + coord_flip()
 write.csv(wrc_family, file="../figures/rhodo_composition.csv", row.names=TRUE)
 
 ggsave(file="../figures/rhodo_family_stack.pdf", width=15, height=9, dpi=300)
+```
+
+```{r soil properties}
+#Read in design file
+meta.env <- design
+
+#bulks soils, M, MF
+by_treatment <- meta.env %>%
+  filter(source == "bulk_soil") %>%
+  group_by(treatment) %>%
+  summarise_all(funs(mean,sd), na.rm=TRUE)
+
+write.csv(t(by_treatment), file = "../figures/soil_properties.csv",row.names=TRUE)
+
+nh4 <- aov(meta.env$n_nh4_ug_gsoil ~ treatment, meta.env)
+anova(nh4)
+
+no3 <- aov(meta.env$n_no3_ug_gsoil ~ treatment, meta.env)
+anova(no3)
+
+ph <- aov(meta.env$pH ~ treatment, meta.env)
+anova(ph)
+
+temp_degC <- aov(meta.env$temp_degC ~ treatment, meta.env)
+anova(temp_degC)
+
+cpercent <- aov(meta.env$c_percent ~ treatment, meta.env)
+anova(cpercent)
+
+npercent <- aov(meta.env$n_percent ~ treatment, meta.env)
+anova(npercent)
+
+CN <- aov(meta.env$C_N ~ treatment, meta.env)
+anova(CN)
+
+p_hcl <- aov(meta.env$p_po4_hcl_ug_gsoil ~ treatment, meta.env)
+anova(p_hcl)
+
+p_h2o <- aov(meta.env$p_po4_w_ug_gsoil ~ treatment, meta.env)
+anova(p_h2o)
+
+moist <- aov(meta.env$moisture ~ treatment, meta.env)
+anova(moist)
+
+
 ```
