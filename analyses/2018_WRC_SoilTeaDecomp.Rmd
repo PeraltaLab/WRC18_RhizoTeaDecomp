@@ -763,7 +763,7 @@ wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="gamma_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/gamma_composition.csv", row.names=TRUE)
 
 ggsave(file="../figures/gamma_family_stack.pdf", width=15, height=9, dpi=300)
 ```
@@ -802,7 +802,7 @@ wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="beta_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/beta_composition.csv", row.names=TRUE)
 
 ggsave(file="../figures/beta_family_stack.pdf", width=15, height=9, dpi=300)
 ```
@@ -840,7 +840,8 @@ wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="actino_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/actino_composition.csv", row.names=TRUE)
+
 
 ggsave(file="../figures/actino_family_stack.pdf", width=15, height=9, dpi=300)
 ```
@@ -878,7 +879,7 @@ wrc_plot<- ggplot(wrc_family, aes(x = Genus, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="rhodo_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/rhodo_composition.csv", row.names=TRUE)
 
 ggsave(file="../figures/rhodo_family_stack.pdf", width=15, height=9, dpi=300)
 ```
