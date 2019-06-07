@@ -1,0 +1,289 @@
+plate_type,Row,Well,Substance,group
+ECO,A,1,water,c_control
+ECO,B,1,Pyruvic acid methyl ester,modified carboxylic acids 
+ECO,C,1,Tween 40,polymer
+ECO,D,1,Tween 80,polymer
+ECO,E,1,alpha-Cyclodextrin,polysaccharides
+ECO,F,1,Glycogen,polysaccharides
+ECO,G,1,D-Cellobiose,oligosaccharides
+ECO,H,1,alpha-D-Lactose,oligosaccharides
+ECO,A,2,beta-methyl-D-glucoside,glycosides
+ECO,B,2,D-Xylose,monosaccharides
+ECO,C,2,i-Erythritol,sugar alcohols
+ECO,D,2,D-mannitol,sugar alcohols
+ECO,E,2,N-Acetyl-D-Glucosamine,modified sugars
+ECO,F,2,D-Glucosaminic acid,sugar acids
+ECO,G,2,Glucose-1-Phosphate,phospho-sugars
+ECO,H,2,"D, L-alpha-Glycerol Phosphate",phospho-sugars
+ECO,A,3,D-Galactonic acid y-Lactone,sugar acids
+ECO,B,3,D-Galacturonic acid,sugar acids
+ECO,C,3,2-hydroxy-benzoic acid,modified carboxylic acids 
+ECO,D,3,4-hydroxy-benzoic acid,modified carboxylic acids 
+ECO,E,3,y-Amino-Butyric acid,modified carboxylic acids 
+ECO,F,3,Itaconic acid,carboxylic acids
+ECO,G,3,alpha-Keto-Butyric acid,modified carboxylic acids 
+ECO,H,3,D-Malic acid,carboxylic acids
+ECO,A,4,L-Arginine,L-Amino acid
+ECO,B,4,L-asparagine,L-Amino acid
+ECO,C,4,L-phenylalanine,L-Amino acid
+ECO,D,4,L-serine,L-Amino acid
+ECO,E,4,L-Threonine,L-Amino acid
+ECO,F,4,Glycyl-L-Glutamic acid,oligopeptides
+ECO,G,4,Phenylethylamine,amine
+ECO,H,4,Putrescine,amine
+ECO,A,5,water,c_control
+ECO,B,5,Pyruvic acid methyl ester,modified carboxylic acids 
+ECO,C,5,Tween 40,polymer
+ECO,D,5,Tween 80,polymer
+ECO,E,5,alpha-Cyclodextrin,polysaccharides
+ECO,F,5,Glycogen,polysaccharides
+ECO,G,5,D-Cellobiose,oligosaccharides
+ECO,H,5,alpha-D-Lactose,oligosaccharides
+ECO,A,6,beta-methyl-D-glucoside,glycosides
+ECO,B,6,D-Xylose,monosaccharides
+ECO,C,6,i-Erythritol,sugar alcohols
+ECO,D,6,D-mannitol,sugar alcohols
+ECO,E,6,N-Acetyl-D-Glucosamine,modified sugars
+ECO,F,6,D-Glucosaminic acid,sugar acids
+ECO,G,6,Glucose-1-Phosphate,phospho-sugars
+ECO,H,6,"D, L-alpha-Glycerol Phosphate",phospho-sugars
+ECO,A,7,D-Galactonic acid y-Lactone,sugar acids
+ECO,B,7,D-Galacturonic acid,sugar acids
+ECO,C,7,2-hydroxy-benzoic acid,modified carboxylic acids 
+ECO,D,7,4-hydroxy-benzoic acid,modified carboxylic acids 
+ECO,E,7,y-Amino-Butyric acid,modified carboxylic acids 
+ECO,F,7,Itaconic acid,carboxylic acids
+ECO,G,7,alpha-Keto-Butyric acid,modified carboxylic acids 
+ECO,H,7,D-Malic acid,carboxylic acids
+ECO,A,8,L-Arginine,L-Amino acid
+ECO,B,8,L-asparagine,L-Amino acid
+ECO,C,8,L-phenylalanine,L-Amino acid
+ECO,D,8,L-serine,L-Amino acid
+ECO,E,8,L-Threonine,L-Amino acid
+ECO,F,8,Glycyl-L-Glutamic acid,oligopeptides
+ECO,G,8,Phenylethylamine,amine
+ECO,H,8,Putrescine,amine
+ECO,A,9,water,c_control
+ECO,B,9,Pyruvic acid methyl ester,modified carboxylic acids 
+ECO,C,9,Tween 40,polymer
+ECO,D,9,Tween 80,polymer
+ECO,E,9,alpha-Cyclodextrin,polysaccharides
+ECO,F,9,Glycogen,polysaccharides
+ECO,G,9,D-Cellobiose,oligosaccharides
+ECO,H,9,alpha-D-Lactose,oligosaccharides
+ECO,A,10,beta-methyl-D-glucoside,glycosides
+ECO,B,10,D-Xylose,monosaccharides
+ECO,C,10,i-Erythritol,sugar alcohols
+ECO,D,10,D-mannitol,sugar alcohols
+ECO,E,10,N-Acetyl-D-Glucosamine,modified sugars
+ECO,F,10,D-Glucosaminic acid,sugar acids
+ECO,G,10,Glucose-1-Phosphate,phospho-sugars
+ECO,H,10,"D, L-alpha-Glycerol Phosphate",phospho-sugars
+ECO,A,11,D-Galactonic acid y-Lactone,sugar acids
+ECO,B,11,D-Galacturonic acid,sugar acids
+ECO,C,11,2-hydroxy-benzoic acid,modified carboxylic acids 
+ECO,D,11,4-hydroxy-benzoic acid,modified carboxylic acids 
+ECO,E,11,y-Amino-Butyric acid,modified carboxylic acids 
+ECO,F,11,Itaconic acid,carboxylic acids
+ECO,G,11,alpha-Keto-Butyric acid,modified carboxylic acids 
+ECO,H,11,D-Malic acid,carboxylic acids
+ECO,A,12,L-Arginine,L-Amino acid
+ECO,B,12,L-asparagine,L-Amino acid
+ECO,C,12,L-phenylalanine,L-Amino acid
+ECO,D,12,L-serine,L-Amino acid
+ECO,E,12,L-Threonine,L-Amino acid
+ECO,F,12,Glycyl-L-Glutamic acid,oligopeptides
+ECO,G,12,Phenylethylamine,amine
+ECO,H,12,Putrescine,amine
+PM3B,A,1,negative control,n_control
+PM3B,B,1,L-glutamine,L-amino acids
+PM3B,C,1,L-tyrosine,L-amino acids
+PM3B,D,1,N-acetyl-L-glutamic acid,modified amino acids 
+PM3B,E,1,histamine,amines
+PM3B,F,1,N-acetyle-D mannosamine,modified sugars
+PM3B,G,1,xanthine,nitrogen bases
+PM3B,H,1,ala-asp,oligopeptides
+PM3B,A,2,ammonia,inorganic
+PM3B,B,2,glycine,L-amino acids
+PM3B,C,2,L-valine,L-amino acids
+PM3B,D,2,N-Phthaloyl-L glutamic acid,modified amino acids 
+PM3B,E,2,B-phenylethyl amine,amines
+PM3B,F,2,adenine,nitrogen bases
+PM3B,G,2,xanthosine,nucleosides and nucleotides
+PM3B,H,2,ala-gln,oligopeptides
+PM3B,A,3,nitrite,inorganic
+PM3B,B,3,L-histidine,L-amino acids
+PM3B,C,3,D-alanine,D-amino acids
+PM3B,D,3,L-pyroglutamic acid,L-amino acids
+PM3B,E,3,tyramine,amines
+PM3B,F,3,adenosine,nucleosides and nucleotides
+PM3B,G,3,uric acid,other organic 
+PM3B,H,3,ala-glu,oligopeptides
+PM3B,A,4,nitate,inorganic
+PM3B,B,4,L-Isoleuine,L-amino acids
+PM3B,C,4,D-asparagine,D-amino acids
+PM3B,D,4,hydroxylamine,inorganic
+PM3B,E,4,acetamide,other organic 
+PM3B,F,4,cytidine,nucleosides and nucleotides
+PM3B,G,4,alloxan,nitrogen bases
+PM3B,H,4,ala-gly,oligopeptides
+PM3B,A,5,urea,other organic 
+PM3B,B,5,L-leucine,L-amino acids
+PM3B,C,5,D-aspartic acid,D-amino acids
+PM3B,D,5,methylamine,amines
+PM3B,E,5,formamide,amines
+PM3B,F,5,cystosine,nitrogen bases
+PM3B,G,5,allantoin,allantoin
+PM3B,H,5,ala-his,oligopeptides
+PM3B,A,6,biuret,other organic 
+PM3B,B,6,L-lysine,L-amino acids
+PM3B,C,6,D-glutamic acid,D-amino acids
+PM3B,D,6,N-amylamine,amines
+PM3B,E,6,glucuronamide,modified sugars
+PM3B,F,6,guanine,nitrogen bases
+PM3B,G,6,parabanic acid,other organic 
+PM3B,H,6,ala-leu,oligopeptides
+PM3B,A,7,L-alanine,L-amino acids
+PM3B,B,7,L-methionine,L-amino acids
+PM3B,C,7,D-lysine,D-amino acids
+PM3B,D,7,N-Butylamine,amines
+PM3B,E,7,"D,L-lactmide",modified sugars
+PM3B,F,7,guanosine,nucleosides and nucleotides
+PM3B,G,7,"D, L alpha-amino-N butyric acid",modified carboxylic acids 
+PM3B,H,7,ala-thr,oligopeptides
+PM3B,A,8,L-arginine,L-amino acids
+PM3B,B,8,L-phenylalanine,L-amino acids
+PM3B,C,8,D-serine,D-amino acids
+PM3B,D,8,Ethylamine,amines
+PM3B,E,8,D-glucosamine,modified sugars
+PM3B,F,8,thymine,nitrogen bases
+PM3B,G,8,amino-N butryic acid,modified amino acids
+PM3B,H,8,gly-asn,oligopeptides
+PM3B,A,9,L-asparagine,L-amino acids
+PM3B,B,9,L-proline,L-amino acids
+PM3B,C,9,D-valine,D-amino acids
+PM3B,D,9,ethanolamine,amines
+PM3B,E,9,D-galactosamine,modified sugars
+PM3B,F,9,thymidine,nucleosides and nucleotides
+PM3B,G,9,amino-N-caproic acid,carboxylic acids
+PM3B,H,9,gly-gln,oligopeptides
+PM3B,A,10,L-aspartic acid,L-amino acids
+PM3B,B,10,L-serine,L-amino acids
+PM3B,C,10,L-citriline,L-amino acids
+PM3B,D,10,ethylenediamine ,other organic 
+PM3B,E,10,D-mannosamine,modified sugars
+PM3B,F,10,uracil,nitrogen bases
+PM3B,G,10,"D,L alpha-amino caprylic acid",modified carboxylic acids 
+PM3B,H,10,gly-glu,oligopeptides
+PM3B,A,11,L-cysteine,L-amino acids
+PM3B,B,11,L-threonine,L-amino acids
+PM3B,C,11,L-homoserine,L-amino acids
+PM3B,D,11,putescine,amines
+PM3B,E,11,N-acetyl-D glucosomine,modified sugars
+PM3B,F,11,uridine,nucleosides and nucleotides
+PM3B,G,11,amino-N valeric acid,modified carboxylic acids 
+PM3B,H,11,gly-met,oligopeptides
+PM3B,A,12,L-glutamic acid,L-amino acids
+PM3B,B,12,L-tryptophan,L-amino acids
+PM3B,C,12,L-ornithine,L-amino acids
+PM3B,D,12,agmatine,amines
+PM3B,E,12,N-actyle-D galactosamine,modified sugars
+PM3B,F,12,inosine,nucleosides and nucleotides
+PM3B,G,12,alpha amino-N valeric acid,modified carboxylic acids 
+PM3B,H,12,met-ala,oligopeptides
+PM4A,A,1,negative control,p_control
+PM4A,B,1,thiophosphate,inorganic 
+PM4A,C,1,phosphophenol pyruvate,phospho-sugars
+PM4A,D,1,D-mannose-1-phosphate,phospho-sugars
+PM4A,E,1,O-phospho-D-tyrosine,p_modified amino acids 
+PM4A,F,1,negative control,s_control
+PM4A,G,1,N-acetyl-L cysteine,p_modified amino acids 
+PM4A,H,1,L-Djenkolic acid,p_modified amino acids 
+PM4A,A,2,phosphate,inorganic 
+PM4A,B,2,dithiophosphate,inorganic 
+PM4A,C,2,phospho-glycolic acid,phospho-sugars
+PM4A,D,2,D-mannose-6-phosphate,phospho-sugars
+PM4A,E,2,O-phospho-L-tyrosine,p_modified amino acids 
+PM4A,F,2,sulfate,inorganic 
+PM4A,G,2,S-methyl-L-cysteine,p_modified amino acids 
+PM4A,H,2,thiourea,other organic 
+PM4A,A,3,pyrophosphate,inorganic 
+PM4A,B,3,"D,L-alpha glycerol phosphate",phospho-sugars
+PM4A,C,3,D-glucose-1-phosphate,phospho-sugars
+PM4A,D,3,cysteamine-S-phosphate,p_modified amino acids 
+PM4A,E,3,phosphocreatine,p_modified amino acids 
+PM4A,F,3,thiosulfate,inorganic 
+PM4A,G,3,cystathionine,p_modified amino acids 
+PM4A,H,3,1-thio-beta-D glucose,p_modified sugars
+PM4A,A,4,trimetaphosphate,inorganic 
+PM4A,B,4,beta-glycerol phosphate,phospho-sugars
+PM4A,C,4,D-glucose-6-phosphate,phospho-sugars
+PM4A,D,4,phospho-L-arginine,p_modified amino acids 
+PM4A,E,4,phosphoryl choline,other organic 
+PM4A,F,4,tetrathionate,inorganic 
+PM4A,G,4,lanthionine,p_modified amino acids
+PM4A,H,4,"D,L lipoamide",other organic 
+PM4A,A,5,tripolyphosphate,inorganic 
+PM4A,B,5,carbamyl phosphate,phospho-sugars
+PM4A,C,5,2-deoxy-D-g6p,phospho-sugars
+PM4A,D,5,O-phospho-D-serine,p_modified amino acids 
+PM4A,E,5,O-phosphoryl-ethanolamine,other organic 
+PM4A,F,5,thiophosphate,inorganic 
+PM4A,G,5,glutathione,oligopeptides
+PM4A,H,5,taurocholic acid,other organic 
+PM4A,A,6,triethylphosphate,inorganic 
+PM4A,B,6,D-2-phosphoglyceric acid,phospho-sugars
+PM4A,C,6,D-glucosamine-6-phosphate,phospho-sugars
+PM4A,D,6,O-phospho-L-serine,p_modified amino acids 
+PM4A,E,6,phosphono acetic acid,other organic 
+PM4A,F,6,dithiophosphate,inorganic 
+PM4A,G,6,"D,L-ethionine",D-amino acids
+PM4A,H,6,taurine,p_modified amino acids 
+PM4A,A,7,hypophosphite,inorganic 
+PM4A,B,7,D-3-phosphoglyceric acid,phospho-sugars
+PM4A,C,7,6-phosphate gluconic acid,phospho-sugars
+PM4A,D,7,O-phospho-L-threonine,p_modified amino acids 
+PM4A,E,7,2-aminoetyle phosphonic acid,other organic 
+PM4A,F,7,L-cysteine,L-amino acids
+PM4A,G,7,L-Methionine,L-amino acids
+PM4A,H,7,hypotaurine,p_modified amino acids 
+PM4A,A,8,adenosine-2-monophosphate,nucleosides and nucleotides
+PM4A,B,8,guanosine-2-monphosphate,nucleosides and nucleotides
+PM4A,C,8,cytidine-2-monophosphate,nucleosides and nucleotides
+PM4A,D,8,uridine-2-monophosphate,nucleosides and nucleotides
+PM4A,E,8,methylene diphosphonic acid,other organic 
+PM4A,F,8,D-cysteine,D-amino acids
+PM4A,G,8,D-Methionine,D-amino acids
+PM4A,H,8,p-amino benzene sulfonic acid,other organic 
+PM4A,A,9,adenosine-3-monophosphate,nucleosides and nucleotides
+PM4A,B,9,guanosine-3-monophosphate,nucleosides and nucleotides
+PM4A,C,9,cytidine-3-monophosphate,nucleosides and nucleotides
+PM4A,D,9,uridine-3-monophosphate,nucleosides and nucleotides
+PM4A,E,9,thymidine-3-monophosphate,nucleosides and nucleotides
+PM4A,F,9,L-cysteinyl-glycine,oligopeptides
+PM4A,G,9,glycyl-L-methionine,oligopeptides
+PM4A,H,9,butane sulfonic acid,other organic 
+PM4A,A,10,adenosine-5-monophosphate,nucleosides and nucleotides
+PM4A,B,10,guanosine-5-monophosphate,nucleosides and nucleotides
+PM4A,C,10,cytidine-5-monophosphate,nucleosides and nucleotides
+PM4A,D,10,uridine-5-monophosphate,nucleosides and nucleotides
+PM4A,E,10,thymidine-5-monophosphate,nucleosides and nucleotides
+PM4A,F,10,L-cystic acid,other organic 
+PM4A,G,10,"N-acetyl-D,L methionine",p_modified amino acids 
+PM4A,H,10,2-hydroxyethane sulfonic acid,other organic 
+PM4A,A,11,"adenosine-2,3-cyclic monophosphate",nucleosides and nucleotides
+PM4A,B,11,"guanosine-2,3-cyclic monophosphate",nucleosides and nucleotides
+PM4A,C,11,"cytidine-2,3-cyclic monophosphate",nucleosides and nucleotides
+PM4A,D,11,"uridine-2,3-cyclic monophosphate",nucleosides and nucleotides
+PM4A,E,11,inositol hexaphosphate,phospho-sugars
+PM4A,F,11,cysteamine,p_modified amino acids 
+PM4A,G,11,L-methionine sulfoxide,p_modified amino acids 
+PM4A,H,11,methane sulfonic acid,other organic 
+PM4A,A,12,"adenosine-2,5-cyclic monophosphate",nucleosides and nucleotides
+PM4A,B,12,"guanosine-3,5-cyclic monophosphate",nucleosides and nucleotides
+PM4A,C,12,"cytdine-3,5-cyclic monophosphate",nucleosides and nucleotides
+PM4A,D,12,"uridine-3,5-cyclic monophosphate",nucleosides and nucleotides
+PM4A,E,12,"thymidine-3,5-cyclic monophosphate",nucleosides and nucleotides
+PM4A,F,12,L-cysteine sulfinic acid,p_modified amino acids 
+PM4A,G,12,L-methionine sulfone,p_modified amino acids 
+PM4A,H,12,tetramethylene sulfone,other organic 
