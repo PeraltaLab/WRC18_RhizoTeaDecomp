@@ -1,8 +1,13 @@
-should be columns/variables,rows,values
-Substance.x,sample,adj_abs
-Tween 40,167-M-2,1.359
-Tween 80,167-M-2,1.259
-alpha-Cyclodextrin,167-M-2,0.009
-Glycogen,167-M-2,0.462
-D-Cellobiose,167-M-2,0.174
-alpha-D-Lactose,167-M-2,0
+Substance.x,sample,adj_abs,,,,,,,,,,
+Tween 40,167-M-2,1.359,,,,,,,,,,
+Tween 80,167-M-2,1.259,,,,,,,,,,
+alpha-Cyclodextrin,167-M-2,0.009,,,,,,,,,,
+Glycogen,167-M-2,0.462,,,,,,,,,,
+D-Cellobiose,167-M-2,0.174,,,,,,,,,,
+alpha-D-Lactose,167-M-2,0,,,,,,,,,,
+Tween 40,167-MF-2,1.359,,,,,,,,,,
+Tween 80,167-MF-2,1.259,,,,,,,,,,
+alpha-Cyclodextrin,167-MF-2,0.009,,,Sum of adj_abs,Column Labels,,,,,,
+Glycogen,167-MF-2,0.462,,,Row Labels,alpha-Cyclodextrin,alpha-D-Lactose,D-Cellobiose,Glycogen,Tween 40,Tween 80,Grand Total
+D-Cellobiose,167-MF-2,0.174,,,167-M-2,0.009,0,0.174,0.462,1.359,1.259,3.263
+alpha-D-Lactose,167-MF-2,0,,,Grand Total,0.009,0,0.174,0.462,1.359,1.259,3.263

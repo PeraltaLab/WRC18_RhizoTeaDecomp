@@ -1,5 +1,5 @@
 ---
-title: "WRC2018_Rhizo"
+title: "WRC2015-2018_Rhizo"
 author: "Regina A. B. Bledsoe, Ariane L. Peralta"
 date: "May 8, 2019"
 output: html_document
@@ -15,6 +15,7 @@ getwd()
 #Set source R tools
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
+source("../bin/R_rainclouds.R")
 
 #load req'd packages 
 require("vegan")
@@ -78,12 +79,13 @@ otu.2 <-otu.2[-c(33:48),]
 #FROM OTU - remove blocks 1, 3, 5, 7 and treatments C & F
 #First join meta and otu. Filter and then remove extra columns
 otu.2.filter <- as.data.frame(cbind(block = meta$block, treatment = meta$treatment, sample = meta$sample, meta$year, otu.2))
-otu.2.filter <- otu.2.filter[which(otu.2.filter$block!=1 & otu.2.filter$block!=3 & otu.2.filter$block!=5 & otu.2.filter$block!=7 & meta$treatment!="C" & meta$treatment!="F" & meta$year!=2015),]
+otu.2.filter <- otu.2.filter[which(otu.2.filter$block!=1 & otu.2.filter$block!=3 & otu.2.filter$block!=5 & otu.2.filter$block!=7 & meta$treatment!="C" & meta$treatment!="F"),]
 otu.2 <- otu.2.filter[,-c(1:3)]
 #rownames(otu.2.filter)
 
 #FROM META - remove blocks 1, 3, 5, 7 and treatments C & F
-meta <- meta[which(meta$block!=1 & meta$block!=3 & meta$block!=5 & meta$block!=7 & meta$treatment!="C" & meta$treatment!="F" & meta$year!=2015),]
+meta <- meta[which(meta$block!=1 & meta$block!=3 & meta$block!=5 & meta$block!=7 & meta$treatment!="C" & meta$treatment!="F"),]
+
 
 #What sample has lowest read count? WRC18_201 16668, highest WRC15_82 351446
 otu2<- colSums(t(otu.2))
@@ -136,7 +138,7 @@ metaotu <- cbind(meta, otu.2.rel)
 
 #PERMANOVA with source and treatment as factors
 #Among all treatments source (soil source) and treatment
-metaotu.ad <- adonis(metaotu[,-c(1:19)] ~source*treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
+metaotu.ad <- adonis(metaotu[,-c(1:19)] ~source*treatment*year, method = "bray", data = metaotu, perm=1000, set.seed=42)
 #metaotu.ad <- adonis(metaotu[,-c(1:19)] ~source*treatment*year, method = "bray", data = metaotu, perm=1000, set.seed=42)
 metaotu.ad 
 
@@ -212,8 +214,8 @@ treat2 <- as.factor(meta$treatment)
 #treat3 <-as.factor(meta$year)
 #levels(treat2) <- c("M", "MF")
 
-#pcoa.groups <- paste(meta$source, meta$treatment, meta$year, sep = "_")
-pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
+pcoa.groups <- paste(meta$source, meta$treatment, meta$year, sep = "_")
+#pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
 
 
 pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
@@ -231,7 +233,7 @@ pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
 
 pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
 pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
-#pcoa.col2 <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3))
+pcoa.col2 <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3)) #year
 
 #pcoa.shape <- ordered(c("A. virginicus", "Bulk Soil", "E. caroliniana"))
 #pcoa.shape <- ordered(pcoa.shape,levels=c("bulk","av", "ec"))
@@ -260,33 +262,34 @@ colnames(vec)
 #plot PCoA
 df1a <- as.data.frame(pcoa.cent.dataframe)
 plot1 <- ggplot(df1a, aes(x=V1, y=V2,  color=pcoa.col, shape = pcoa.shape, 
-                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+                 group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2)) + theme_bw() 
 plot1 +
 #group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
-  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=7) + 
+    geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=8) +
+  geom_point(aes(colour=pcoa.col2), size =5.0)+ 
   #geom_point(aes(colour=pcoa.col2), size =4.0)+
   #removes gridlines from plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
   #Plot soil property vectors from envfit
-  geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
-      arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  ##geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
+  ##    arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
   #Label soil vectors. Using annotate because I can't figure out how to move segment text
   #Note when re-run should double check envfit stats to make sure that soil parameters are the same
-  geom_text(data=vec,aes(x=Dim1,y=Dim2,label=vec$parm),size=5, inherit.aes=F)+
+  ##geom_text(data=vec,aes(x=Dim1,y=Dim2,label=vec$parm),size=5, inherit.aes=F)+
   #annotate("text",x=-0.02,y=0.2, label="C%") +
   #annotate("text",x=0.02,y=0.2, label="N%") +
   #annotate("text",x=0,y=-.2, label="moisture") +
   #annotate("text",x=0.1,y=-.225, label="pH") +
   #Set error bacrs for geom_point
-  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.02), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.02), colour="black") + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   #Set colors for treatments
   #scale_colour_manual(values = c("#999999", "#000000")) +
   scale_colour_manual(values = c("#EB8F43", "#9BBB59","purple","red","yellow","blue","gray","pink","magenta")) +
   #Would have liked to set shapes but couldn't get this to work
   #scale_shape_manual(values = c(22, 21, 24)) +
   #Sets map coordinates
-  coord_cartesian(xlim = c(-0.3, 0.3), ylim = c(-0.3, 0.3)) +
+  coord_cartesian(xlim = c(-0.1, 0.1), ylim = c(-0.1, 0.1)) +
   #Sets axis text and put border around plot
   theme(axis.title = element_text(size=14), 
         axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
@@ -298,13 +301,13 @@ plot1 +
   #Sets size of tick marks on axis
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   #Sets labels for plot title, axis titles, and legend headings
-  xlab("PCoA 1 (30.5%)") + ylab("PCoA 2 (21.7%)") + 
+  xlab("PCoA 1 (23.4%)") + ylab("PCoA 2 (18.2%)") + 
   labs(shape = "Soil Source") +
   labs(colour="treatment") +
   ggtitle("16S rRNA Microbial Community Analysis") 
   
 #Save a copy of the plot
-ggsave("../figures/16SrRNA_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/phylo_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -393,34 +396,36 @@ otu.div <- cbind(otu.div,shannon,J, simp, invsimp)
 
 ```{r diversity metrics - display shannon }
 #Run richness first. interaction, levels, and treatments for plotting set there
-shannon.lm <- aov(shannon ~ treatment + source + i, data = otu.div)
+shannon.lm <- aov(shannon ~ treatment * source * year +i, data = otu.div)
 plot(shannon.lm)
 anova(shannon.lm)
-
+i = with(otu.div,(interaction(source, year)))
 #Tukey groups at p<=0.01*
-t <- HSD.test(shannon.lm, "i", group=TRUE, alpha=0.05)
+t <- HSD.test(shannon.lm, "i", group=TRUE, alpha=0.01)
 t
 plot(t)
 
 #p is set in richness chuck
 shan<- ggplot(otu.div, aes(x=i, y=shannon, fill=treatment))  +
-  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000"))  + annotate("text",x=0.82,y=6.1, label="bc") +
-annotate("text",x=1.81,y=5.9, label="c") +
-annotate("text",x=2.81,y=6.05, label="c") +
-annotate("text",x=1.1815,y=6.5, label="a") +
-annotate("text",x=2.19,y=6.3, label="ab") + 
-annotate("text",x=3.19,y=6.35, label="ab") + 
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000"))  + 
+  #facet_grid(~ year) +
+#annotate("text",x=0.82,y=6.1, label="bc") +
+#annotate("text",x=1.81,y=5.9, label="c") +
+#annotate("text",x=2.81,y=6.05, label="c") +
+#annotate("text",x=1.1815,y=6.5, label="a") +
+#annotate("text",x=2.19,y=6.3, label="ab") + 
+#annotate("text",x=3.19,y=6.35, label="ab") + 
 #Set plot elements
 theme_bw()  +
 #Remove plot gridlines
 theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
 #Set axis title and text properties, tick marks, and labels
 theme(axis.title=element_text(size=14,face="bold"),
-          axis.text=element_text(size=14), axis.text.x = element_blank(), 
+          axis.text=element_text(size=14), #axis.text.x = element_blank(), 
           axis.title.y=element_text(margin=margin(r=10)),
           panel.border = element_rect(colour = "black",size=1), legend.position="none") + 
           theme(axis.ticks.length=unit(0.3,"cm")) + 
-          labs(x = "", y = "Shannon diversity H'")
+          labs(x = "Treatment", y = "Shannon diversity H'")
 
 shan
 
@@ -535,3 +540,223 @@ anova(C_N)
 
 ```
 
+```{r phylogenetic analysis}
+#Make unifrac distance matrix
+#Run PERMANOVA
+#Make PCoA plot
+#Compare taxonomic div to phylogenetic diversity
+
+```
+```{r (Phylogenetic Diversity), include=FALSE}
+# Phylogenetic Diversity - analysis by Mario Muscarella modified by Gina Bledsoe
+# Load Tree
+tree <- read.tree("../data/WRC18_Rhizo/WRC15-18Rhizo.bac.rename.tree")
+tree$tip.label <- gsub("\\|", "", tree$tip.label)
+sum(tree$tip.label %in% colnames(otu.2) == FALSE)
+# Small Branches
+sum(tree$edge.length < 0.0000001)
+# Import Unifrac Matrix
+unifrac.raw <- read.delim("../data/WRC18_Rhizo/WRC15-18Rhizo.bac.tree1.weighted.phylip.dist", skip = 1, header = F, row.names = 1)
+colnames(unifrac.raw) <- rownames(unifrac.raw)
+rownames(unifrac.raw)
+#Remove spaces from rownames
+require("stringr")
+rownames(unifrac.raw) <- str_replace_all(rownames(unifrac.raw), fixed(" "), "")
+rownames(unifrac.raw)
+#narrow unifrac to 2018 Rhizopshere samples
+unifrac <- unifrac.raw[which(row.names(unifrac.raw) %in%
+                                   row.names(otu.2)),
+                            which(row.names(unifrac.raw) %in%
+                                   row.names(otu.2))]
+dim(unifrac)
+# Make into Distance Matrix
+unifrac.dist <- as.dist(unifrac, upper = T, diag = T)
+
+# Calculate Phylo Diversity
+phylo_final <- pd(otu.2, tree, include.root = F)
+
+rownames(meta)=meta$sample
+
+all.equal(rownames(meta), rownames(phylo_final))
+
+dim(phylo_final)
+dim(meta)
+
+wrc.phylo <- cbind(meta,phylo_final)
+#wrc.phylo <- wrc.phylo[,-c(33:36)]
+
+# run full parametric statistical model
+PD.lm <- lm(PD ~ treatment * source * year, data = wrc.phylo)
+plot(PD.lm)
+anova(PD.lm)
+
+# run linear regression on diversity
+PD.reg <- lm(PD~shannon, data = wrc.phylo)
+summary(PD.reg)
+
+ggplot(wrc.phylo,aes(x=shannon,y=PD))+stat_summary(fun.data=mean_cl_normal) + 
+  geom_smooth(method='lm',formula=y~x) +
+  geom_point(aes(color=treatment)) +
+  facet_grid(~ year)
+
+ggplot(wrc.phylo,aes(x=shannon,y=PD, color=treatment))+stat_summary(fun.data=mean_cl_normal) + 
+  geom_smooth(method='lm',formula=y~x) +
+  geom_point(aes(color=treatment))+
+  facet_grid(~ year)
+
+ggplot(wrc.phylo,aes(x=shannon,y=PD, color=source))+stat_summary(fun.data=mean_cl_normal) + 
+  geom_smooth(method='lm',formula=y~x) +
+  geom_point(aes(color=source))+
+  facet_grid(~ year)
+
+p1 <- ggplot(wrc.phylo, aes(x = source, y = PD, fill = treatment), size=16) +
+  geom_flat_violin(aes(fill = treatment),position = position_nudge(x = .1, y = 0), adjust = 1.5, trim = FALSE, alpha = .5, colour = NA)+
+  geom_point(aes(x = source, y = PD, colour = treatment),position = position_jitter(width = .05), size = 1.5, shape = 20)+
+  geom_boxplot(aes(x = source, y = PD, fill = treatment),outlier.shape = NA, alpha = .5, width = .1, colour = "black") + labs(x = "Sampling Date", y = "Phylogenetic Diversity") 
+p1
+
+p2 <- ggplot(wrc.phylo, aes(x = treatment, y = PD, fill = source), size=16) +
+  geom_flat_violin(aes(fill = source),position = position_nudge(x = .1, y = 0), adjust = 1.5, trim = FALSE, alpha = .5, colour = NA)+
+  geom_point(aes(x = treatment, y = PD, colour = source),position = position_jitter(width = .05), size = 1.5, shape = 20)+
+  geom_boxplot(aes(x = treatment, y = PD, fill = source),outlier.shape = NA, alpha = .5, width = .1, colour = "black") + labs(x = "Sampling Date", y = "Phylogenetic Diversity") 
+p2
+```
+
+```{r Calculate distance matrix and PCoA components }
+#dim(otu.2.rel.dist)
+#otu.2.rel.dist<-vegdist(unifrac.dist, method="bray")
+
+# Principal Coordinates Analysis
+otu.2.rel.dist.pcoa <- cmdscale(unifrac.dist, k=3, eig=TRUE, add=FALSE)
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1a <- round(otu.2.rel.dist.pcoa$eig[1] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+explainvar2a <- round(otu.2.rel.dist.pcoa$eig[2] / sum(otu.2.rel.dist.pcoa$eig), 3) * 100
+sum.eiga <- sum(explainvar1a, explainvar2a)
+
+explainvar1a
+explainvar2a
+
+```
+
+```{r PCoA Plot Phylogenetic}
+
+#PERMANOVA with source and treatment as factors
+#Among all treatments source (soil source) and treatment
+####I need to combine meta and unifrac.dist. Then run adonis 
+m <- as.matrix(unifrac.dist)
+rownames(meta) <- meta$sample
+all.equal(rownames(m), rownames(meta))
+unifrac.dist.meta <- cbind(meta, m)
+metaotu.ad <- adonis(unifrac.dist.meta[,-c(1:23)] ~source*treatment*year, method = "bray", data = unifrac.dist.meta, perm=1000, set.seed=42)
+#metaotu.ad <- adonis(metaotu[,-c(1:19)] ~source*treatment*year, method = "bray", data = metaotu, perm=1000, set.seed=42)
+metaotu.ad 
+
+
+all.equal(rownames(meta), rownames(phylo_final))
+# Set treatments
+treat1 <- as.factor(meta$source)
+levels(treat1) <- ordered(c("bulk","grass", "forb"))
+treat2 <- as.factor(meta$treatment)
+treat3 <-as.factor(meta$year)
+#levels(treat3) <- c("M", "MF")
+
+pcoa.groups <- paste(meta$source, meta$treatment, meta$year, sep = "_")
+#pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
+
+
+pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
+pcoa.col2 <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3)) #year
+
+#pcoa.shape <- ordered(c("A. virginicus", "Bulk Soil", "E. caroliniana"))
+#pcoa.shape <- ordered(pcoa.shape,levels=c("bulk","av", "ec"))
+#pcoa.shape <- revalue(pcoa.shape, c("bulk"="Bulk Soil", "av"="Grass", "ec"="Forb"))
+#pcoa.shape <- mapvalues(pcoa.shape, from = c("bulk","av","ec"), to = c("Bulk Soil", "Grass", "Forb"))
+
+levels(pcoa.col) <- c("Unfertilized","Fertilized")
+
+#Removed RS samples becuase only have soil porperty values for RP samples
+#Run envfit to see which soil varibales are predicators 
+colnames(meta)
+
+###Are these just the environmental parameters have values for bulk and rhizospehre soils?
+#fit<-envfit(otu.2.rel.dist.pcoa$points, meta[,-c(1:12)], perm=1000, na.rm=T, set.seed=42)
+#fit
+
+#A <-as.list(fit$vectors)
+#vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.35)
+#p<- as.data.frame(A$pvals)
+#vec <- cbind(vec, p) 
+#vec <-  subset(vec, A$pvals<=0.05)
+
+#vec$parm<-rownames(vec)
+#colnames(vec)
+#vec$parm<-c("Moisture","pH","C%","N%")
+
+#plot PCoA
+df1a <- as.data.frame(pcoa.cent.dataframe)
+plot1 <- ggplot(df1a, aes(x=V1, y=V2,  color=pcoa.col, shape = pcoa.shape, 
+                 group = interaction(pcoa.col, pcoa.shape), color=pcoa.col2)) + theme_bw() +
+#group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
+  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=7) + 
+  geom_point(aes(colour=pcoa.col2), size =5.0) +
+  #geom_point(aes(colour=pcoa.col2), size =4.0)+
+  #removes gridlines from plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  #Plot soil property vectors from envfit
+  #geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
+  #   arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  #Label soil vectors. Using annotate because I can't figure out how to move segment text
+  #Note when re-run should double check envfit stats to make sure that soil parameters are the same
+  #geom_text(data=vec,aes(x=Dim1,y=Dim2,label=vec$parm),size=5, inherit.aes=F)+
+  #annotate("text",x=-0.02,y=0.2, label="C%") +
+  #annotate("text",x=0.02,y=0.2, label="N%") +
+  #annotate("text",x=0,y=-.2, label="moisture") +
+  #annotate("text",x=0.1,y=-.225, label="pH") +
+  #Set error bacrs for geom_point
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  #Set colors for treatments
+  #scale_colour_manual(values = c("#999999", "#000000")) +
+  scale_colour_manual(values = c("gray", "darkgreen","purple","red","yellow","blue","gray","pink","magenta")) +
+  #Would have liked to set shapes but couldn't get this to work
+  #scale_shape_manual(values = c(22, 21, 24)) +
+  #Sets map coordinates
+  coord_cartesian(xlim = c(-.1, 0.1), ylim = c(-0.1, 0.1)) +
+  #Sets axis text and put border around plot
+  theme(axis.title = element_text(size=14), 
+        axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
+        panel.border = element_rect(colour = "black", size=1.25)) +
+  #Set plot title textsize
+  theme(plot.title=element_text(size=14)) +
+  #Set legend text size
+  theme(legend.text=element_text(size=14), legend.title = element_text(size=14))+
+  #Sets size of tick marks on axis
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  #Sets labels for plot title, axis titles, and legend headings
+  xlab("PCoA 1 (39.9%)") + ylab("PCoA 2 (23.4%)") + 
+  labs(shape = "Soil Source") +
+  labs(colour="treatment") +
+  ggtitle("Phylogenetic Diversity") 
+  
+plot1 
+
+#Save a copy of the plot
+ggsave("../figures/WRC15-18_Rhizo/16SrRNA_phylo_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
+
+```
