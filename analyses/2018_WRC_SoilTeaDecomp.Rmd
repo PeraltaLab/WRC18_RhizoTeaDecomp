@@ -454,7 +454,7 @@ plot2a + theme(panel.grid.major = element_blank(),
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
-geom_point(aes(colour=trt.t.s), size=5, stroke = 1.25, show.legend = TRUE) +
+geom_point(aes(colour=trt.c), size=5, stroke = 1.25, show.legend = TRUE) +
 geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
 scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
                     values = c("darkgray", "darkgreen")) + 
@@ -473,6 +473,7 @@ xlab("PCoA 1 (43.3%)") + ylab("PCoA 2 (10.6%)") +
   labs(colour = "treatment", shape = "source + ditch") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
          shape = guide_legend(override.aes = list(size = 4)))
+          +ggtitle("Nitrogen Use Composition")
 ggsave("../figures/Ordination_bulk_tea.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
 ```
 
