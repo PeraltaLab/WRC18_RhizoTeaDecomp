@@ -60,6 +60,7 @@ tax.df <- as.data.frame(tax)
 colnames(tax.df)=c("Domain","Phylum","Class", "Order","Family","Genus")
 tax <- tax_table(tax.df)
 ```
+
 ```{r filter meta and otu datasets and rarefy}
 #Remove OTUs with less than 2 occurences across all sites
 otu.2 <- otu[, which(colSums(otu) >2)]
@@ -89,13 +90,12 @@ meta <- meta[which(meta$block!=1 & meta$block!=3 & meta$block!=5 & meta$block!=7
 
 #What sample has lowest read count? WRC18_201 16668, highest WRC15_82 351446
 otu2<- colSums(t(otu.2))
-otu2
 otu2[which.min(colSums(t(otu.2)))]
 otu2[which.max(colSums(t(otu.2)))]
 #remove WRC18_201
-rownames(otu.2)
+#rownames(otu.2)
 otu.2 <- otu.2[-c(41),]
-meta$sample
+#meta$sample
 meta <- meta[-c(41),]
 #Now WRC18_208 is lowest sample t 26119 reads. Both WRC18_201 and WRC18_208 are EC 201-M. 208-MF
 

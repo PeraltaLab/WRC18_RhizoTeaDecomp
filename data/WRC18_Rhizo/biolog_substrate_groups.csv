@@ -119,7 +119,7 @@ PM3B,E,3,tyramine,amines
 PM3B,F,3,adenosine,nucleosides and nucleotides
 PM3B,G,3,uric acid,other organic 
 PM3B,H,3,ala-glu,oligopeptides
-PM3B,A,4,nitate,inorganic
+PM3B,A,4,nitrate,inorganic
 PM3B,B,4,L-Isoleuine,L-amino acids
 PM3B,C,4,D-asparagine,D-amino acids
 PM3B,D,4,hydroxylamine,inorganic
@@ -197,36 +197,36 @@ PM4A,C,1,phosphophenol pyruvate,phospho-sugars
 PM4A,D,1,D-mannose-1-phosphate,phospho-sugars
 PM4A,E,1,O-phospho-D-tyrosine,p_modified amino acids 
 PM4A,F,1,negative control,s_control
-PM4A,G,1,N-acetyl-L cysteine,p_modified amino acids 
-PM4A,H,1,L-Djenkolic acid,p_modified amino acids 
+PM4A,G,1,N-acetyl-L cysteine,modified amino acids 
+PM4A,H,1,L-Djenkolic acid,modified amino acids 
 PM4A,A,2,phosphate,inorganic 
 PM4A,B,2,dithiophosphate,inorganic 
 PM4A,C,2,phospho-glycolic acid,phospho-sugars
 PM4A,D,2,D-mannose-6-phosphate,phospho-sugars
-PM4A,E,2,O-phospho-L-tyrosine,p_modified amino acids 
+PM4A,E,2,O-phospho-L-tyrosine,modified amino acids 
 PM4A,F,2,sulfate,inorganic 
-PM4A,G,2,S-methyl-L-cysteine,p_modified amino acids 
+PM4A,G,2,S-methyl-L-cysteine,modified amino acids 
 PM4A,H,2,thiourea,other organic 
 PM4A,A,3,pyrophosphate,inorganic 
 PM4A,B,3,"D,L-alpha glycerol phosphate",phospho-sugars
 PM4A,C,3,D-glucose-1-phosphate,phospho-sugars
-PM4A,D,3,cysteamine-S-phosphate,p_modified amino acids 
-PM4A,E,3,phosphocreatine,p_modified amino acids 
+PM4A,D,3,cysteamine-S-phosphate,modified amino acids 
+PM4A,E,3,phosphocreatine,modified amino acids 
 PM4A,F,3,thiosulfate,inorganic 
-PM4A,G,3,cystathionine,p_modified amino acids 
-PM4A,H,3,1-thio-beta-D glucose,p_modified sugars
+PM4A,G,3,cystathionine,modified amino acids 
+PM4A,H,3,1-thio-beta-D glucose,modified sugars
 PM4A,A,4,trimetaphosphate,inorganic 
 PM4A,B,4,beta-glycerol phosphate,phospho-sugars
 PM4A,C,4,D-glucose-6-phosphate,phospho-sugars
-PM4A,D,4,phospho-L-arginine,p_modified amino acids 
+PM4A,D,4,phospho-L-arginine,modified amino acids 
 PM4A,E,4,phosphoryl choline,other organic 
 PM4A,F,4,tetrathionate,inorganic 
-PM4A,G,4,lanthionine,p_modified amino acids
+PM4A,G,4,lanthionine,modified amino acids
 PM4A,H,4,"D,L lipoamide",other organic 
 PM4A,A,5,tripolyphosphate,inorganic 
 PM4A,B,5,carbamyl phosphate,phospho-sugars
 PM4A,C,5,2-deoxy-D-g6p,phospho-sugars
-PM4A,D,5,O-phospho-D-serine,p_modified amino acids 
+PM4A,D,5,O-phospho-D-serine,modified amino acids 
 PM4A,E,5,O-phosphoryl-ethanolamine,other organic 
 PM4A,F,5,thiophosphate,inorganic 
 PM4A,G,5,glutathione,oligopeptides
@@ -234,19 +234,19 @@ PM4A,H,5,taurocholic acid,other organic
 PM4A,A,6,triethylphosphate,inorganic 
 PM4A,B,6,D-2-phosphoglyceric acid,phospho-sugars
 PM4A,C,6,D-glucosamine-6-phosphate,phospho-sugars
-PM4A,D,6,O-phospho-L-serine,p_modified amino acids 
+PM4A,D,6,O-phospho-L-serine,modified amino acids 
 PM4A,E,6,phosphono acetic acid,other organic 
 PM4A,F,6,dithiophosphate,inorganic 
 PM4A,G,6,"D,L-ethionine",D-amino acids
-PM4A,H,6,taurine,p_modified amino acids 
+PM4A,H,6,taurine,modified amino acids 
 PM4A,A,7,hypophosphite,inorganic 
 PM4A,B,7,D-3-phosphoglyceric acid,phospho-sugars
 PM4A,C,7,6-phosphate gluconic acid,phospho-sugars
-PM4A,D,7,O-phospho-L-threonine,p_modified amino acids 
+PM4A,D,7,O-phospho-L-threonine,modified amino acids 
 PM4A,E,7,2-aminoetyle phosphonic acid,other organic 
 PM4A,F,7,L-cysteine,L-amino acids
 PM4A,G,7,L-Methionine,L-amino acids
-PM4A,H,7,hypotaurine,p_modified amino acids 
+PM4A,H,7,hypotaurine,modified amino acids 
 PM4A,A,8,adenosine-2-monophosphate,nucleosides and nucleotides
 PM4A,B,8,guanosine-2-monphosphate,nucleosides and nucleotides
 PM4A,C,8,cytidine-2-monophosphate,nucleosides and nucleotides
@@ -269,21 +269,21 @@ PM4A,C,10,cytidine-5-monophosphate,nucleosides and nucleotides
 PM4A,D,10,uridine-5-monophosphate,nucleosides and nucleotides
 PM4A,E,10,thymidine-5-monophosphate,nucleosides and nucleotides
 PM4A,F,10,L-cystic acid,other organic 
-PM4A,G,10,"N-acetyl-D,L methionine",p_modified amino acids 
+PM4A,G,10,"N-acetyl-D,L methionine",modified amino acids 
 PM4A,H,10,2-hydroxyethane sulfonic acid,other organic 
 PM4A,A,11,"adenosine-2,3-cyclic monophosphate",nucleosides and nucleotides
 PM4A,B,11,"guanosine-2,3-cyclic monophosphate",nucleosides and nucleotides
 PM4A,C,11,"cytidine-2,3-cyclic monophosphate",nucleosides and nucleotides
 PM4A,D,11,"uridine-2,3-cyclic monophosphate",nucleosides and nucleotides
 PM4A,E,11,inositol hexaphosphate,phospho-sugars
-PM4A,F,11,cysteamine,p_modified amino acids 
-PM4A,G,11,L-methionine sulfoxide,p_modified amino acids 
+PM4A,F,11,cysteamine,modified amino acids 
+PM4A,G,11,L-methionine sulfoxide,modified amino acids 
 PM4A,H,11,methane sulfonic acid,other organic 
 PM4A,A,12,"adenosine-2,5-cyclic monophosphate",nucleosides and nucleotides
 PM4A,B,12,"guanosine-3,5-cyclic monophosphate",nucleosides and nucleotides
 PM4A,C,12,"cytdine-3,5-cyclic monophosphate",nucleosides and nucleotides
 PM4A,D,12,"uridine-3,5-cyclic monophosphate",nucleosides and nucleotides
 PM4A,E,12,"thymidine-3,5-cyclic monophosphate",nucleosides and nucleotides
-PM4A,F,12,L-cysteine sulfinic acid,p_modified amino acids 
-PM4A,G,12,L-methionine sulfone,p_modified amino acids 
+PM4A,F,12,L-cysteine sulfinic acid,modified amino acids 
+PM4A,G,12,L-methionine sulfone,modified amino acids 
 PM4A,H,12,tetramethylene sulfone,other organic 
