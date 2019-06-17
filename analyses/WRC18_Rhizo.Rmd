@@ -217,7 +217,7 @@ df1a <- as.data.frame(pcoa.cent.dataframe)
 plot1 <- ggplot(df1a, aes(x=V1, y=V2), 
                  group = interaction(pcoa.col, pcoa.shape)) + theme_bw() +
 #group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
-  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=7) + 
+  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=10, stroke = 2) + 
   #geom_point(aes(colour=pcoa.col2), size =4.0)+
   #removes gridlines from plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -242,25 +242,27 @@ plot1 <- ggplot(df1a, aes(x=V1, y=V2),
   #Sets map coordinates
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.2, 0.2)) +
   #Sets axis text and put border around plot
-  theme(axis.title = element_text(size=24), 
-        axis.text.x = element_text(size=24),  axis.text.y = element_text(size=24),
+  theme(axis.title = element_text(size=24, face="bold"), 
+        axis.text.x = element_text(size=24, face="bold"),  axis.text.y = element_text(size=24, face="bold"),
         panel.border = element_rect(colour = "black", size=1.25)) +
   #Set plot title textsize
-  theme(plot.title=element_text(size=24)) +
+  theme(plot.title=element_text(size=24, face="bold")) +
   #Set legend text size
-  theme(legend.text=element_text(size=24), legend.title = element_text(size=24))+
+  theme(legend.text=element_text(size=24, face="bold"), legend.title = element_text(size=24, face="bold"))+
   #Sets size of tick marks on axis
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   #Sets labels for plot title, axis titles, and legend headings
   xlab("PCoA 1 (29.1%)") + ylab("PCoA 2 (12.2%)") + 
   labs(shape = "Soil Source") +
-  labs(colour="treatment") +
-  ggtitle("16S rRNA Taxonomic Composition") 
+  labs(colour="Treatment") +
+  ggtitle("16S rRNA Taxonomic Composition")+
+  theme(legend.position="none")#+
+  #theme(rect = element_rect(fill = "transparent")) 
   
 plot1 
 
 #Save a copy of the plot
-ggsave("../figures/WRC18_Rhizo/16SrRNA_WRC2018Rhizo.jpg", plot=plot1, device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/16SrRNA_WRC2018Rhizo.png", plot=plot1, device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
 
 ```
 
@@ -522,7 +524,6 @@ anova(C_N)
 
 ```
 
-
 ```{r Phylogenetic Diversity - load data, include=FALSE}
 # Phylogenetic Diversity - analysis by Mario Muscarella modified by Gina Bledsoe
 # Load Tree
@@ -612,6 +613,7 @@ explainvar1a #42.2
 explainvar2a #23.6
 
 ```
+
 ```{r Unifrac - PERMANOVA}
 #PERMANOVA with source and treatment as factors
 #Among all treatments source (soil source) and treatment
@@ -682,7 +684,7 @@ df1a <- as.data.frame(pcoa.cent.dataframe)
 plot1 <- ggplot(df1a, aes(x=V1, y=V2), 
                  group = interaction(pcoa.col, pcoa.shape)) + theme_bw() +
 #group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
-  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=7) + 
+  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=10, stroke=2) + 
   #geom_point(aes(colour=pcoa.col2), size =4.0)+
   #removes gridlines from plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -720,12 +722,14 @@ plot1 <- ggplot(df1a, aes(x=V1, y=V2),
   xlab("PCoA 1 (42.2%)") + ylab("PCoA 2 (23.6%)") + 
   labs(shape = "Soil Source") +
   labs(colour="treatment") +
-  ggtitle("Phylogenetic Composition") 
+  ggtitle("Phylogenetic Composition") +
+  theme(legend.position = "none")#+
+  #theme(rect = element_rect(fill = "transparent")) 
   
 plot1 
 
 #Save a copy of the plot
-ggsave("../figures/WRC18_Rhizo/16SrRNA_phylo_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/16SrRNA_phylo_WRC2018Rhizo.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
 
 ```
 
@@ -858,7 +862,7 @@ eco_AWCD_plot <- ggplot(data=eco_joined_all, aes(x=timepoint, y=AWCD, color=trea
   theme(legend.text=element_text(size=24, face="bold"), legend.title = element_text(size=24,        face="bold"))+
   theme(axis.text.x=element_blank()) +
     theme(strip.text.x = element_text(size = 24, face="bold")) +
-  ggtitle("Carbon Plate AWCD") +
+  ggtitle("Carbon AWCD") +
   xlab("Timepoints T0-T11") +
   ylab("AWCD") +
   theme(legend.position = "none")
@@ -868,6 +872,7 @@ eco_AWCD_plot
 ggsave("../figures/WRC18_Rhizo/Eco_plate_AWCD.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
 
 # run full parametric statistical model
+###Not sure this makes sense bc of timepoints
 eco_AWCD.lm <- lm(AWCD ~ treatment * source, data = eco_joined_all)
 plot(eco_AWCD.lm)
 anova(eco_AWCD.lm)
@@ -958,6 +963,9 @@ eco_shan
 eco.lm <- lm(eco_shannon ~ treatment * source, data = wrc.phylo)
 plot(eco.lm)
 anova(eco.lm)
+
+t <- HSD.test(eco.lm, "source", group=TRUE, alpha=.05)
+t
 
 # run linear regression on diversity
 eco.reg <- lm(PD~eco_shannon, data = wrc.phylo)
@@ -1082,7 +1090,7 @@ nitro_AWCD_plot <- ggplot(data=nitro_joined_all, aes(x=timepoint, y=AWCD, color=
   theme(legend.text=element_text(size=24, face="bold"), legend.title = element_text(size=24,        face="bold"))+
   theme(axis.text.x=element_blank()) +
     theme(strip.text.x = element_text(size = 24, face="bold")) +
-  ggtitle("Nitrogen Plate AWCD") +
+  ggtitle("Nitrogen AWCD") +
   xlab("Timpoints T0-T11") +
   ylab("AWCD") +
   theme(legend.position = "none")
@@ -1098,13 +1106,14 @@ ggsave("../figures/WRC18_Rhizo/nitro_plate_AWCD.jpg", plot=last_plot(), device=N
 ```{r nitro plate T04}
 #subset to include only T04 
 nitro_T <- nitro_joined_all %>% 
-  filter(timepoint=="T04") 
+  filter(timepoint=="T04") %>%
+  filter(Substance.x != "hydroxylamine")
 
 i <- with(nitro_T, interaction(treatment, source))
 
 nitro_subs <- ggplot(nitro_T, aes(treatment, Substance.x)) +
   geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
-  scale_fill_gradient(low = "gray", high = "black") +
+  scale_fill_gradient(low = "white", high = "black") +
   labs(fill = "Absorbance \n Intensity")+
   facet_grid(~ source) 
 
@@ -1113,7 +1122,7 @@ nitro_subs
 ggsave("../figures/WRC18_Rhizo/nitro_sub_overview.jpg", plot=nitro_subs, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
 
 nitro_subs_groups <- ggplot(nitro_T, aes(group, treatment)) +
-  geom_tile(aes(fill = adj_abs), colour = "white") + 
+  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
   scale_fill_gradient(low = "white", high = "black") +
   facet_grid(~ source) +
   labs(fill = "Absorbance \n Intensity")+
@@ -1121,27 +1130,26 @@ nitro_subs_groups <- ggplot(nitro_T, aes(group, treatment)) +
 
 nitro_subs_groups
 
-n <- nitro_joined_all %>% filter(group == "inorganic")
+n <- nitro_T %>% filter(group == "inorganic")
 
 n.p <- ggplot(n, aes(Substance.x, treatment )) +
-  facet_grid(~soure)+
+  facet_grid(~source)+
   geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
   scale_fill_gradient(low = "white", high = "black") +
-  facet_grid(~ treatment) +
   labs(fill = "Absorbance \n Intensity")+
   coord_flip()
 #scale(adj_abs, scale=TRUE, center=FALSE)
 
 n.p
 
-p <- nitro_joined_all %>% 
+p <- nitro_T %>% 
   filter(group == "inorganic")%>%
   filter(Substance.x != "hydroxylamine") 
   
 
 nitro_subs_groups <- ggplot(p, aes(Substance.x, treatment)) +
   facet_grid(~source)+
-  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "gray") + 
+  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
   scale_fill_gradient(low = "white", high = "black") +
   facet_grid(~ source) +
   labs(fill = "Absorbance \n Intensity")+
@@ -1157,7 +1165,7 @@ ggsave("../figures/WRC18_Rhizo/nitro_sub_overview.jpg", plot=nitro_subs_groups, 
 ```{r nitro plate diversity}
 #Transform so that substances are columns and sample is row?
 #First select just the columns needed... then turn negatve values into 0
-nitro_joined_adj_sub <- nitro_joined_all %>%
+nitro_joined_adj_sub <- nitro_T %>%
   select(Substance.x, sample,  adj_abs )  #%>%
 
 #I want Substance.x to be columns and sample to be rows and vales to be adj_abs
@@ -1198,9 +1206,13 @@ nitro_shan <- ggplot(wrc.phylo, aes(x=treatment, y=nitro_shannon, fill = treatme
 nitro_shan
 
 # run full parametric statistical model
-nitro.lm <- lm(nitro_shannon ~ treatment * source, data = wrc.phylo)
+i <- with(wrc.phylo, interaction(treatment, source))
+nitro.lm <- lm(nitro_shannon ~ treatment + source + i, data = wrc.phylo)
 plot(nitro.lm)
 anova(nitro.lm)
+
+t <- HSD.test(nitro.lm, "source", group=TRUE, alpha=.05)
+t
 
 # run linear regression on diversity
 nitro.reg <- lm(PD~nitro_shannon, data = wrc.phylo)
@@ -1359,6 +1371,15 @@ po4_AWCD_plot
 
 ggsave("../figures/WRC18_Rhizo/po4_plate_AWCD.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
 
+i<- with(po4_joined_all,(interaction(treatment,source)))
+
+po4.lm <- lm(AWCD ~ treatment + source+i, data = po4_joined_all)
+plot(po4.lm)
+anova(po4.lm)
+
+t <- HSD.test(po4.lm, "i", group=TRUE, alpha=.05)
+t
+
 
 po4_subs_groups <- ggplot(po4_joined_all, aes(group, treatment)) +
   geom_tile(aes(fill = scale(adj_abs, center=FALSE, scale = TRUE)), colour = "white") + 
@@ -1372,6 +1393,99 @@ po4_subs_groups
 ggsave("../figures/WRC18_Rhizo/po4_groups_overview.jpg", plot=po4_subs_groups, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
 
 ```
+
+```{r P plate T04}
+#subset to include only T04 
+po4_T <- po4_joined_all %>% 
+  filter(timepoint=="T04") 
+#Subset design file
+biolog_design <- biolog_design %>%
+  filter(sample != "201-M-EC-2")
+
+i <- with(po4_T, interaction(treatment, source))
+
+po4_subs <- ggplot(po4_T, aes(treatment, Substance.x)) +
+  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
+  scale_fill_gradient(low = "white", high = "black") +
+  labs(fill = "Absorbance \n Intensity")+
+  facet_grid(~ source) 
+
+po4_subs
+
+ggsave("../figures/WRC18_Rhizo/po4_sub_overview.jpg", plot=po4_subs, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
+
+po4_subs_groups <- ggplot(po4_T, aes(group, treatment)) +
+  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
+  scale_fill_gradient(low = "white", high = "black") +
+  facet_grid(~ source) +
+  labs(fill = "Absorbance \n Intensity")+
+  coord_flip()
+
+po4_subs_groups
+
+ggsave("../figures/WRC18_Rhizo/po4_sub_overview.jpg", plot=po4_subs_groups, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
+```
+
+```{r P Diversity}
+#Transform so that substances are columns and sample is row?
+#First select just the columns needed... then turn negatve values into 0
+po4_joined_adj_sub <- po4_T %>%
+  select(Substance.x, sample,  adj_abs )  #%>%
+
+#I want Substance.x to be columns and sample to be rows and vales to be adj_abs
+m <- melt(po4_joined_adj_sub)
+po4.cast<-cast(data=m, formula = sample ~ Substance.x,fun.aggregate = sum)
+#Make sample column rownames and remove sample column
+rownames(po4.cast) = po4.cast$sample
+po4.cast <- po4.cast[, -c(1)]
+
+po4_shannon <- diversity(po4.cast, "shannon")
+
+wrc.phylo<- wrc.phylo[,-c(38)]
+wrc.phylo <- wrc.phylo %>%
+  filter(sample != "WRC18_201")
+wrc.phylo <- cbind(wrc.phylo, po4_shannon)
+wrc.phylo<- wrc.phylo[,-c(38)]
+
+
+po4_shan <- ggplot(wrc.phylo, aes(x=treatment, y=po4_shannon, fill = treatment))+
+  geom_boxplot()+
+  facet_grid(~source)+
+  scale_fill_manual(labels=c("Unfertilized", "Fertilized"), values=c("gray","darkgreen")) +
+  theme_bw() +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.title = element_text(size=24, face="bold"), 
+        axis.text.x = element_text(size=24, face="bold"),  axis.text.y = element_text(size=24,    face="bold"), panel.border = element_rect(colour = "black", size=1.25)) +
+  #Set plot title textsize
+  theme(plot.title=element_text(size=24, face="bold")) +
+  #Set legend text size
+  theme(legend.position = "none")+
+  theme(axis.text.x=element_blank()) +
+    theme(strip.text.x = element_text(size = 24, face="bold")) +
+  ggtitle("Phosphorus Use Diversity") +
+  xlab("") +
+  ylab("Shannon H'") 
+
+po4_shan
+
+# run full parametric statistical model
+po4.lm <- lm(po4_shannon ~ treatment * source, data = wrc.phylo)
+plot(po4.lm)
+anova(po4.lm)
+
+t <- HSD.test(po4.lm, "source", group=TRUE, alpha=.05)
+t
+
+# run linear regression on diversity
+po4.reg <- lm(PD~po4_shannon, data = wrc.phylo)
+summary(po4.reg)
+
+po4.reg <- lm(shannon~po4_shannon, data = wrc.phylo)
+summary(po4.reg)
+
+ggsave("../figures/WRC18_Rhizo/po4_shan.jpg", plot=po4_shan, device=NULL, path=NULL, scale=1, width=5.5, height=5, dpi=900, limitsize=TRUE)
+```
+
 ```{r S AWCD graph}
 #Need to add a design file... sulfur
 biolog_sub_groups_sulfur <- biolog_sub_groups %>% 
@@ -1420,9 +1534,40 @@ sulfur_AWCD_plot
 
 ggsave("../figures/WRC18_Rhizo/sulfur_plate_AWCD.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
 
+i<-with(sulfur_joined_all, interaction(treatment, source))
+sulfur.lm <- lm(AWCD ~ treatment + source + i, data = sulfur_joined_all)
+plot(sulfur.lm)
+anova(sulfur.lm)
 
-sulfur_subs_groups <- ggplot(sulfur_joined_all, aes(group, treatment)) +
-  geom_tile(aes(fill = scale(adj_abs, center=FALSE, scale = TRUE)), colour = "white") + 
+t <- HSD.test(sulfur.lm, "i", group=TRUE, alpha=.05)
+t
+
+
+ggsave("../figures/WRC18_Rhizo/sulfur_groups_overview.jpg", plot=po4_subs_groups, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
+```
+
+```{r S plate T04}
+#subset to include only T04 
+sulfur_T <- sulfur_joined_all %>% 
+  filter(timepoint=="T04") 
+#Subset design file
+biolog_design <- biolog_design %>%
+  filter(sample != "201-M-EC-2")
+
+i <- with(sulfur_T, interaction(treatment, source))
+
+sulfur_subs <- ggplot(sulfur_T, aes(treatment, Substance.x)) +
+  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
+  scale_fill_gradient(low = "white", high = "black") +
+  labs(fill = "Absorbance \n Intensity")+
+  facet_grid(~ source) 
+
+sulfur_subs
+
+ggsave("../figures/WRC18_Rhizo/sulfur_sub_overview.jpg", plot=sulfur_subs, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
+
+sulfur_subs_groups <- ggplot(sulfur_T, aes(group, treatment)) +
+  geom_tile(aes(fill = scale(adj_abs, scale=TRUE, center=FALSE)), colour = "white") + 
   scale_fill_gradient(low = "white", high = "black") +
   facet_grid(~ source) +
   labs(fill = "Absorbance \n Intensity")+
@@ -1430,66 +1575,9 @@ sulfur_subs_groups <- ggplot(sulfur_joined_all, aes(group, treatment)) +
 
 sulfur_subs_groups
 
-ggsave("../figures/WRC18_Rhizo/sulfur_groups_overview.jpg", plot=po4_subs_groups, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/sulfur_sub_overview.jpg", plot=sulfur_subs_groups, device=NULL, path=NULL, scale=1, width=8, height=5, dpi=900, limitsize=TRUE)
 ```
 
-
-```{r P and S Diversity}
-#Transform so that substances are columns and sample is row?
-#First select just the columns needed... then turn negatve values into 0
-po4_joined_adj_sub <- po4_joined_all %>%
-  select(Substance.x, sample,  adj_abs )  #%>%
-
-#I want Substance.x to be columns and sample to be rows and vales to be adj_abs
-m <- melt(po4_joined_adj_sub)
-po4.cast<-cast(data=m, formula = sample ~ Substance.x,fun.aggregate = sum)
-#Make sample column rownames and remove sample column
-rownames(po4.cast) = po4.cast$sample
-po4.cast <- po4.cast[, -c(1)]
-
-po4_shannon <- diversity(po4.cast, "shannon")
-
-wrc.phylo<- wrc.phylo[,-c(38)]
-wrc.phylo <- wrc.phylo %>%
-  filter(sample != "WRC18_201")
-wrc.phylo <- cbind(wrc.phylo, po4_shannon)
-wrc.phylo<- wrc.phylo[,-c(38)]
-
-
-po4_shan <- ggplot(wrc.phylo, aes(x=treatment, y=po4_shannon, fill = treatment))+
-  geom_boxplot()+
-  facet_grid(~source)+
-  scale_fill_manual(labels=c("Unfertilized", "Fertilized"), values=c("gray","darkgreen")) +
-  theme_bw() +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-  theme(axis.title = element_text(size=24, face="bold"), 
-        axis.text.x = element_text(size=24, face="bold"),  axis.text.y = element_text(size=24,    face="bold"), panel.border = element_rect(colour = "black", size=1.25)) +
-  #Set plot title textsize
-  theme(plot.title=element_text(size=24, face="bold")) +
-  #Set legend text size
-  theme(legend.position = "none")+
-  theme(axis.text.x=element_blank()) +
-    theme(strip.text.x = element_text(size = 24, face="bold")) +
-  ggtitle("Phosphorus Substrate-Use Diversity") +
-  xlab("") +
-  ylab("Shannon H'") 
-
-po4_shan
-
-# run full parametric statistical model
-po4.lm <- lm(po4_shannon ~ treatment * source, data = wrc.phylo)
-plot(po4.lm)
-anova(po4.lm)
-
-# run linear regression on diversity
-po4.reg <- lm(PD~po4_shannon, data = wrc.phylo)
-summary(po4.reg)
-
-po4.reg <- lm(shannon~po4_shannon, data = wrc.phylo)
-summary(po4.reg)
-
-ggsave("../figures/WRC18_Rhizo/po4_shan.jpg", plot=po4_shan, device=NULL, path=NULL, scale=1, width=5, height=5, dpi=900, limitsize=TRUE)
-```
 ```{r sulfur diversity}
 #SULFUR
 #Transform so that substances are columns and sample is row?
@@ -1518,7 +1606,7 @@ sulfur_shan <- ggplot(wrc.phylo, aes(x=treatment, y=sulfur_shannon, fill = treat
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
   theme(axis.title = element_text(size=24, face="bold"), 
-        axis.text.x = element_text(size=24, face="bold"),  axis.text.y = element_text(size=24,    face="bold"), panel.border = element_rect(colour = "black", size=1.25)) +
+        axis.text.x = element_text(size=24, face="bold"),  axis.text.y = element_text(size=24,      face="bold"), panel.border = element_rect(colour = "black", size=1.25)) +
   #Set plot title textsize
   theme(plot.title=element_text(size=24, face="bold")) +
   #Set legend text size
@@ -1527,7 +1615,8 @@ sulfur_shan <- ggplot(wrc.phylo, aes(x=treatment, y=sulfur_shannon, fill = treat
     theme(strip.text.x = element_text(size = 24, face="bold")) +
   ggtitle("Sulfur Substrate-Use Diversity") +
   xlab("") +
-  ylab("Shannon H'") 
+  ylab("Shannon H'") +
+  theme(rect = element_rect(fill = "transparent"))
 
 sulfur_shan
 
@@ -1543,7 +1632,7 @@ summary(sulfur.reg)
 sulfur.reg <- lm(shannon~sulfur_shannon, data = wrc.phylo)
 summary(sulfur.reg)
 
-ggsave("../figures/WRC18_Rhizo/sulfur_shan.jpg", plot=sulfur_shan, device=NULL, path=NULL, scale=1, width=8, height=8, dpi=900, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/sulfur_shan.png", plot=sulfur_shan, device=NULL, path=NULL, scale=1, width=8, height=8, dpi=900, limitsize=TRUE)
 ```
 
 ```{r biolog PM4A P substance count}
@@ -1580,7 +1669,6 @@ po4_groups1 <- ggplot(po4_joined_adj_groups, aes(treatment, sum)) +
 po4_groups1
 
 ```
-
 
 ```{r biolog sulfur plate substance count}
 #For each treatment*source get count of group (group is the category of substrate)
@@ -1653,9 +1741,6 @@ mantel.rtest(unifrac.dist.201, sulfur.dist, nrepet = 999)
 mantel.rtest(otu.dist, unifrac.dist.201, nrepet = 999)
 ```
 
-
-
-
 ```{r biolog eco plate ORDINATION GRAPH}
 #eco.dist <- vegdist(eco.cast, method = "euclidean")
 #biolog_design is design file
@@ -1673,6 +1758,12 @@ sum.eigb <- sum(explainvar1b, explainvar2b)
 
 explainvar1b #39.2
 explainvar2b #16.1
+
+eco.meta <- cbind(as.data.frame(eco.cast), biolog_design)
+
+metaotu.ad <- adonis(eco.meta[,-c(32:35)] ~ source*treatment, method = "bray", data = eco.meta, perm=1000, set.seed=42)
+
+metaotu.ad 
 ```
 
 ```{r Ordination (PCoA) - biolog ecoplate}
@@ -1700,7 +1791,7 @@ pcoa.cent.dataframe.trts$source <- as.factor(source.c)
 #Plot
 df1a <- as.data.frame(pcoa.cent.dataframe.trts)
 plot1a <- ggplot(df1a, aes(x=V1, y=V2, colour=trt, shape = source,
-                           group = interaction(trt, source))) + theme_bw() 
+                           group = interaction(trt, source))) + theme_bw()   
 plot1a <- plot1a + theme(panel.grid.major = element_blank(), 
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
@@ -1724,13 +1815,13 @@ xlab("PCoA 1 (39.2%)") + ylab("PCoA 2 (16.1%)") +
   labs(colour = "treatment", shape = "source") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 10)),
          shape = guide_legend(override.aes = list(size = 10)))+ggtitle("Carbon Substrate-Use")+
-  theme(legend.position="none")
+  theme(legend.position="none") +
+  theme(rect = element_rect(fill = "transparent")) 
 
 plot1a
 
-ggsave("../figures/WRC18_Rhizo/Ordination_ecoplate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/Ordination_ecoplate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE, bg="transparent")
 ```
-
 
 ```{r biolog NITRO plate ORDINATION GRAPH}
 #biolog_design is design file
@@ -1747,12 +1838,20 @@ explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
 explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
 sum.eigb <- sum(explainvar1b, explainvar2b)
 
-explainvar1b #38.3
-explainvar2b #10.9
+explainvar1b #50.3
+explainvar2b #7.5
+
+nitro.meta <- cbind(as.data.frame(nitro.cast), biolog_design)
+
+metaotu.ad <- adonis(nitro.meta[,-c(95:98)] ~ source*treatment, method = "bray", data = nitro.meta, perm=1000, set.seed=42)
+
+metaotu.ad 
 ```
 
 ```{r Ordination (PCoA) - biolog Nitrogen plate}
 # Principal Coordinates Analysis - bulk and teas
+biolog_design <- biolog_design %>%
+  filter(sample != "201-M-EC-2")
 new.data <-cbind(biolog_design,nitro.cast)
 pcoa.groups <- paste(new.data$treatment, new.data$source, new.data$ditch, sep = "_")
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
@@ -1799,10 +1898,11 @@ theme(axis.ticks.length = unit(0.3, "cm")) +
 xlab("PCoA 1 (38.3%)") + ylab("PCoA 2 (10.7%)") +
   labs(colour = "treatment", shape = "source") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
-         shape = guide_legend(override.aes = list(size = 4)))+ggtitle("Phosphorus Substrate-Use")+
-  theme(legend.position = "none")
+         shape = guide_legend(override.aes = list(size = 4)))+ggtitle("Nitrogen Substrate-Use")+
+  theme(legend.position = "none")+
+  theme(rect = element_rect(fill = "transparent")) 
 
-ggsave("../figures/WRC18_Rhizo/Ordination_nitroplate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/Ordination_nitroplate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE, bg="transparent")
 ```
 
 ```{r biolog PHOSPHORUS plate ORDINATION GRAPH}
@@ -1822,6 +1922,12 @@ sum.eigb <- sum(explainvar1b, explainvar2b)
 
 explainvar1b #48.3
 explainvar2b #12.5
+
+po4.meta <- cbind(as.data.frame(po4.cast), biolog_design)
+
+metaotu.ad <- adonis(po4.meta[,-c(60:63)] ~ source*treatment, method = "bray", data = po4.meta, perm=1000, set.seed=42)
+
+metaotu.ad
 ```
 
 ```{r Ordination (PCoA) - biolog phosphorus plate}
@@ -1861,21 +1967,23 @@ scale_shape_manual(labels = c("bulk soil",
                               "forb",
                               "grass"), 
                    values = c(16,22,15)) +
-theme(axis.title = element_text(size=14), axis.text = element_text(size=14),
-      axis.text.x = element_text(size=14), 
+theme(axis.title = element_text(size=24), axis.text = element_text(size=24),
+      axis.text.x = element_text(size=24), 
       panel.border = element_rect(colour = "black", size = 1.25)) + 
 theme(axis.ticks.length = unit(0.3, "cm")) + 
    #Set plot title textsize
   theme(plot.title=element_text(size=24)) +
   #Set legend text size
   theme(legend.text=element_text(size=24), legend.title = element_text(size=24))+
-xlab("PCoA 1 (39.6%)") + ylab("PCoA 2 (13.0%)") +
+xlab("PCoA 1 (57.2%)") + ylab("PCoA 2 (9.9%)") +
   labs(colour = "treatment", shape = "source") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
-         shape = guide_legend(override.aes = list(size = 4)))+ggtitle("Phosphorus Use Composition")+
-  theme(legend.position="none")
+         shape = guide_legend(override.aes = list(size = 4)))+ggtitle("Phosphorus Substrate-Use")+
+  theme(legend.position="none")+
+  theme(rect = element_rect(fill = "transparent")) 
+
 plot3a
-ggsave("../figures/WRC18_Rhizo/Ordination_PO4plate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/Ordination_PO4plate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE, bg="transparent")
 ```
 
 ```{r biolog SULFUR plate ORDINATION GRAPH}
@@ -1893,8 +2001,14 @@ explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
 explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
 sum.eigb <- sum(explainvar1b, explainvar2b)
 
-explainvar1b #45.6
-explainvar2b #10.1
+explainvar1b #39.6
+explainvar2b #13
+
+sulfur.meta <- cbind(as.data.frame(sulfur.cast), biolog_design)
+
+metaotu.ad <- adonis(sulfur.meta[,-c(60:63)] ~ source*treatment, method = "bray", data = sulfur.meta, perm=1000, set.seed=42)
+
+metaotu.ad
 ```
 
 ```{r Ordination (PCoA) - biolog sulfur plate}
@@ -1946,11 +2060,12 @@ xlab("PCoA 1 (39.6%)") + ylab("PCoA 2 (13.0%)") +
   labs(colour = "treatment", shape = "source") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
          shape = guide_legend(override.aes = list(size = 4)))+ggtitle("Sulfur Substrate-Use")+
-  theme(legend.position = "none")
+  theme(legend.position = "none")+
+  theme(rect = element_rect(fill = "transparent")) 
 
 plot4a
 
-ggsave("../figures/WRC18_Rhizo/Ordination_sulfurplate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/Ordination_sulfurplate.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=5, height=5, dpi=300, limitsize=TRUE, bg="transparent")
 
 
 ```
@@ -1980,6 +2095,7 @@ ggplot(plant_cover_reps_2018, aes(x=treatment, y=mean_cover, fill=plant)) +
 ###
   
 ```
+
 ```{r load taxonomy data into phyloseq object}
 # Import otu and tax into phyloseq
 otu <- otu_table(t(otu.2), taxa_are_rows = T)
