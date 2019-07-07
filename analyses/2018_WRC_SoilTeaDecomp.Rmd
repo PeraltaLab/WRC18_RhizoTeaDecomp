@@ -157,7 +157,7 @@ theme(panel.background = element_blank()) +
 geom_point(aes(colour=trt.t), size=5, stroke = 1.25, show.legend = TRUE) +
 geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
 scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
-                    values = c("darkgray", "darkgreen")) + 
+                    values = c("gray70", "darkgreen")) + 
 scale_shape_manual(labels = c("green_tea (wet_0ditch)", 
                               "green_tea (dry_1ditch)", 
                               "rooibos_tea (wet_0ditch)",
@@ -171,7 +171,7 @@ xlab("PCoA 1 (22.2%)") + ylab("PCoA 2 (10.1%)") +
   labs(colour = "treatment", shape = "source + ditch") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
          shape = guide_legend(override.aes = list(size = 4)))
-ggsave("../figures/Ordination_tea.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
+ggsave("../figures/Ordination_tea.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 #Loading data file
@@ -187,11 +187,11 @@ dim(TBI)
 TBI$trt <- as.factor(TBI$Treatment)
 TBI$ditch <- as.factor(TBI$Ditch)
 
-p <- ggplot(TBI, aes(x=S, y=k, color=trt, shape=ditch))+ scale_color_manual(name="Treatment", values=c("darkgray","darkgreen"), labels = c("Mowed", "Mowed/Fertilized")) + geom_point(size=5) + scale_shape_manual(name="Ditch", values = c(16,21), labels = c("wet_0ditch","dry_1ditch"))
+p <- ggplot(TBI, aes(x=S, y=k, color=trt, shape=ditch))+ scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("Mowed", "Mowed/Fertilized")) + geom_point(size=5) + scale_shape_manual(name="Ditch", values = c(16,21), labels = c("wet_0ditch","dry_1ditch"))
 p1=p+geom_point()
 TBI <- p1 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +theme(axis.title=element_text(vjust=1,size=18), axis.text=element_text(size=18), axis.text.x = element_text(vjust=0.65, hjust=0.5, size=18), panel.border = element_rect(colour = "black",size=1)) + theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Stabilization factor (S)", y = "Decomposition rate (k)") + theme(strip.text.x = element_text(size=18, face="bold"), strip.text.y = element_text(size=18, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1))
 TBI
-ggsave("../figures/TBI.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/TBI.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 # Tea Decomp Biomass
@@ -215,7 +215,7 @@ summary(aov.fit2)
 ditch.labs <- c("wet_0ditch","dry_1ditch") #for facet labels
 names(ditch.labs) <- c("0", "1")
 
-p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("darkgray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
+p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -228,7 +228,27 @@ p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))
-ggsave("../figures/PercentLoss.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/PercentLoss_pointCI.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+
+#boxplots
+p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment))) + geom_boxplot() +
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) +   
+      scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", 
+      "mowed/fertilized")) 
+p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
+p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
+          size=14), panel.border = element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "Percent Loss") + 
+    theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", size=1)) +
+    scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))
+
+ggsave("../figures/PercentLoss_boxplots.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 ## Bacterial Data - including bulk and tea
@@ -341,51 +361,55 @@ anova(shannon.lm)
 ```{r Plot - Shannon Diversity, echo=TRUE}
 ditch.labs <- c("wet_0ditch", "dry_1ditch") #for facet labels
 names(ditch.labs) <- c("0", "1")
+
 # Graphing Shannon Diversity
-p <- ggplot(diversity, aes(x=source, y=shannon, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
+p <- ggplot(diversity, aes(x=source, y=shannon, color=as.factor(treatment)))+ geom_boxplot() +
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
-p1 + theme_bw() + 
+shannon<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
           =element_line(colour = "black")) + 
     theme(axis.title=element_text(vjust=1,size=14,face="bold"),
           axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
           size=14), panel.border = element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "Shannon Diversity Index (H')") + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = "Shannon Diversity Index (H')") + 
     theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
-  
-ggsave("../figures/shannon.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+shannon
+#ggsave("../figures/shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 #Plot richness 
 ```{r Plot - OTU richness, echo=TRUE}
 # Graphing Richness
-p <- ggplot(diversity, aes(x=source, y=richness, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75)
+p <- ggplot(diversity, aes(x=source, y=richness, color=as.factor(treatment)))+ geom_boxplot() +
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
-p1 + theme_bw() + 
+richness<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
           =element_line(colour = "black")) + 
     theme(axis.title=element_text(vjust=1,size=14,face="bold"),
           axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
           size=14), panel.border = element_rect(colour = "black",size=1)) + 
-    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "OTU richness") + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "", y = "OTU Richness") + 
     theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
-  
-ggsave("../figures/richness.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+richness
+#ggsave("../figures/richness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 #Plot Simpson's Evenness
 ```{r Plot Simpson's Evenness, echo=TRUE}
 # Graphing Simpson's Evenness
-p <- ggplot(diversity, aes(x=source, y=simp.even, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
+p <- ggplot(diversity, aes(x=source, y=simp.even, color=as.factor(treatment)))+ geom_boxplot() +
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
-p1 + theme_bw() + 
+even<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
           =element_line(colour = "black")) + 
     theme(axis.title=element_text(vjust=1,size=14,face="bold"),
@@ -397,8 +421,26 @@ p1 + theme_bw() +
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
-  
-ggsave("../figures/evenness.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+even 
+#ggsave("../figures/evenness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+#combine graphs N process rates x moisture
+```{r Loading Files, include=FALSE}
+library("cowplot") #combining plots
+library("ggpubr")
+# remove legends and axes
+n1 <-richness + theme(legend.position="top", legend.box = "horizontal")
+n2 <- shannon + theme(legend.position="none")
+n3 <- even + theme(legend.position="none")
+
+# align all plots vertically
+plots <- align_plots(n1,n2,n3, align = 'v', axis = 'l')
+
+# combine moisture N process graphs
+n4 <- plot_grid(plots[[1]],plots[[2]],plots[[3]], labels = c("A","B","C"), label_size = 16, ncol=1, align='v')
+n4 
+
+ggsave("../figures/alpha_diversity.png", plot=last_plot(), device=NULL, path=NULL, scale=1,  width=8, height=15, dpi=300, limitsize=TRUE)
 ```
 # Simple Hypothesis Testing - Microbes
 ```{r perMANOVA - Bacteria - All sources, echo=TRUE}
@@ -426,7 +468,7 @@ explainvar2b #10.6
 
 ```{r Ordination (PCoA) - Bacteria, include=FALSE}
 # Principal Coordinates Analysis - bulk and teas
-#new.data <-cbind(design_final,dataREL)
+new.data <-cbind(design_final,dataREL)
 pcoa.groups <- paste(new.data$treatment, new.data$source, new.data$ditch, sep = "_")
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
 
@@ -454,10 +496,10 @@ plot2a + theme(panel.grid.major = element_blank(),
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
-geom_point(aes(colour=trt.c), size=5, stroke = 1.25, show.legend = TRUE) +
+geom_point(aes(colour=trt.t.s), size=5, stroke = 1.25, show.legend = TRUE) +
 geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
 scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
-                    values = c("darkgray", "darkgreen")) + 
+                    values = c("gray70", "darkgreen")) + 
 scale_shape_manual(labels = c("bulk_soil (wet_0ditch)", 
                               "bulk_soil (dry_1ditch)",
                               "green_tea (wet_0ditch)", 
@@ -473,8 +515,7 @@ xlab("PCoA 1 (43.3%)") + ylab("PCoA 2 (10.6%)") +
   labs(colour = "treatment", shape = "source + ditch") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
          shape = guide_legend(override.aes = list(size = 4)))
-          +ggtitle("Nitrogen Use Composition")
-ggsave("../figures/Ordination_bulk_tea.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=9, height=7, dpi=300, limitsize=TRUE)
+ggsave("../figures/Ordination_bulk_tea.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 # Bacterial community indicator species
