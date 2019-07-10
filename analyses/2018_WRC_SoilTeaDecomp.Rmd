@@ -26,18 +26,9 @@ ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
 # Code Dependencies
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
-require("vegan")
-require("nlme")
-require("reshape")
-require("ggplot2")
-require("ade4")
-require("png")
-require ("agricolae")
-require("tidyr")
-require("dplyr")
-require("reshape2")
-require("picante")
-require("phyloseq")
+require("vegan"); require("nlme"); require("reshape"); require("ggplot2")
+require("ade4"); require("png"); require ("agricolae"); require("tidyr")
+require("dplyr"); require("reshape2"); require("picante"); require("phyloseq")
 ```
 #Import Files
 ## Environmental Data
@@ -100,6 +91,22 @@ for(i in 1:dim(otus.t)[1]){
 new.data.t <-cbind(design.t,dataREL.t)
 adonis = adonis(new.data.t[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data.t, perm=1000)
 adonis
+```
+# str-fxn tea type only
+```{r perMANOVA - Bacteria - All Yrs, echo=TRUE}
+# bcc = str(new.data.t)
+#Redundancy Analysis
+mod1 <- rda(dataREL.t ~ design.t$Percent_Loss)
+mod1
+plot(mod1)
+
+f <- dataREL.t ~ design.t$Percent_Loss
+df.rda <- dbrda(f, data=dataREL.t, distance="bray")
+anova(df.rda, by="terms", model="direct")
+RsquareAdj(df.rda)
+
+#adonis2 = adonis(new.data.t[,-c(1:16)]~Percent_Loss, method = "bray", data = new.data.t, perm=1000)
+#adonis2 - same as RDA R2
 ```
 # Bacterial Ordinations
 
@@ -355,6 +362,15 @@ shannon.lm <- lmer(shannon ~ source*treatment*ditch + (1|block), data = diversit
 plot(shannon.lm)
 shannon.lm
 anova(shannon.lm)
+
+#regression alpha diversity
+# Multiple Linear Regression Example 
+diversity.teas <- subset(diversity, source == "green_tea" | source == "rooibos_tea")
+
+fit <- lm(Percent_Loss ~ richness + shannon + simp.even, diversity.teas)
+summary(fit) #
+plot(fit)
+
 ```
 
 #Plot shannon diversity 
@@ -424,7 +440,7 @@ even<-p1 + theme_bw() +
 even 
 #ggsave("../figures/evenness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
-#combine graphs N process rates x moisture
+#combine alpha diversity graphs
 ```{r Loading Files, include=FALSE}
 library("cowplot") #combining plots
 library("ggpubr")
