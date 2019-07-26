@@ -967,7 +967,7 @@ by_treatment <- meta.env %>%
   summarise_at(c("temp_degC", "moisture", "pH", "c_percent", "n_percent", "C_N", 
                  "n_nh4_ug_gsoil", "n_no3_ug_gsoil", "p_po4_hcl_ug_gsoil", 
                  "p_po4_w_ug_gsoil"), funs(mean,sd), na.rm = TRUE)
-write.csv(t(by_treatment), file = "../figures/soil_properties_trt.csv",row.names=TRUE)
+write.csv(t(by_treatment), file = "../data/soil_properties_trt.csv",row.names=TRUE)
 
 by_treatment_ditch <- meta.env %>%
   filter(source == "bulk_soil") %>%
@@ -975,7 +975,7 @@ by_treatment_ditch <- meta.env %>%
   summarise_at(c("temp_degC", "moisture", "pH", "c_percent", "n_percent", "C_N", 
                  "n_nh4_ug_gsoil", "n_no3_ug_gsoil", "p_po4_hcl_ug_gsoil", 
                  "p_po4_w_ug_gsoil"), funs(mean,sd), na.rm = TRUE)
-write.csv(t(by_treatment_ditch), file = "../figures/soil_properties_trt_ditch.csv",row.names=TRUE)
+write.csv(t(by_treatment_ditch), file = "../data/soil_properties_trt_ditch.csv",row.names=TRUE)
 
 ###re-ran glmms - majoritty of original model var ~ ~ treatment*ditch+(1|ditch) did not converge; removed ditch effect as it did not have signif effects - except p_hcl
 
