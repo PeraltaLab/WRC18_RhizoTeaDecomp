@@ -1,0 +1,14 @@
+OTU	Cluster	IndVal	Prob	ta2	ta3	ta4	ta5	ta6	OTU
+Otu00009	1	0.347798340778558	0.025	Verrucomicrobia	Spartobacteria	Spartobacteria_unclassified	Spartobacteria_unclassified	Spartobacteria_unclassified	Otu00009
+Otu00010	1	0.256717850287908	0.06	Acidobacteria	Acidobacteria_Gp2	Gp2	Gp2_unclassified	Gp2_unclassified	Otu00010
+Otu00018	1	0.272520602443876	0.037	Acidobacteria	Acidobacteria_Gp2	Gp2	Gp2_unclassified	Gp2_unclassified	Otu00018
+Otu00030	1	0.322077922077922	0.006	Acidobacteria	Acidobacteria_Gp2	Gp2	Gp2_unclassified	Gp2_unclassified	Otu00030
+Otu00045	1	0.416338582677165	0.044	Verrucomicrobia	Spartobacteria	Spartobacteria_unclassified	Spartobacteria_unclassified	Spartobacteria_unclassified	Otu00045
+Otu00048	1	0.222348916761688	0.068	Bacteria_unclassified	Bacteria_unclassified	Bacteria_unclassified	Bacteria_unclassified	Bacteria_unclassified	Otu00048
+Otu00049	1	0.389502762430939	0.027	Acidobacteria	Acidobacteria_Gp1	Gp1	Gp1_unclassified	Gp1_unclassified	Otu00049
+Otu00079	1	0.3019508057676	0.079	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Gemmata	Otu00079
+Otu00020	2	0.293729372937294	0.024	Proteobacteria	Betaproteobacteria	Burkholderiales	Burkholderiaceae	Burkholderia	Otu00020
+Otu00061	3	0.231607629427793	0.057	Proteobacteria	Alphaproteobacteria	Alphaproteobacteria_incertae_sedis	Rhizomicrobium	Rhizomicrobium_unclassified	Otu00061
+Otu00004	4	0.250273942581635	0.09	Acidobacteria	Acidobacteria_Gp1	Gp1	Gp1_unclassified	Gp1_unclassified	Otu00004
+Otu00021	4	0.260774686306601	0.048	Actinobacteria	Actinobacteria	Solirubrobacterales	Solirubrobacterales_unclassified	Solirubrobacterales_unclassified	Otu00021
+Otu00036	4	0.340909090909091	0.004	Acidobacteria	Acidobacteria_Gp1	Gp1	Gp1_unclassified	Gp1_unclassified	Otu00036

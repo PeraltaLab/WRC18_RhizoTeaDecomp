@@ -15,7 +15,6 @@ getwd()
 #Set source R tools
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
-source("../bin/R_rainclouds.R")
 
 #load req'd packages 
 require("vegan")
@@ -63,44 +62,36 @@ tax <- tax_table(tax.df)
 
 ```{r filter meta and otu datasets and rarefy}
 #Remove OTUs with less than 2 occurences across all sites
-otu.2 <- otu[, which(colSums(otu) >2)]
-#If needed can try to reduce tax dataset by removing otus removed from otu file
-#otu.1 <- otu[, which(colSums(otu) <2)]
-#list <- colnames(otu.1)
-#This bit not working atm
-#tax.trim <- tax[-c(list),]
+otu.2 <- otu[, which(colSums(otu) > 9)]
+otu.2 <- as.data.frame(otu[-c(33:48),])
 
-#Remove all RP samples
-#In the original WRC2015 sampling I collected bulk soils, and rhizospehre soils. Soil loosley adhering to roots was shaken into a bag (RP) for DNA and soil NH4/NO3 extraction. Roots and adhering soils collected for DNA processing (RS). Removed RP from DNA analysis.
-#WRC15_65-WRC15_80
-#rownames(otu.2)
-otu.2 <-otu.2[-c(33:48),]
-#rownames(otu.2)
-
-#FROM OTU - remove blocks 1, 3, 5, 7 and treatments C & F
+#FROM OTU - Select only bulk from 2018 
 #First join meta and otu. Filter and then remove extra columns
-otu.2.filter <- as.data.frame(cbind(block = meta$block, treatment = meta$treatment, sample = meta$sample, meta$year, otu.2))
-otu.2.filter <- otu.2.filter[which(otu.2.filter$block!=1 & otu.2.filter$block!=3 & otu.2.filter$block!=5 & otu.2.filter$block!=7 & meta$treatment!="C" & meta$treatment!="F"),]
-otu.2 <- otu.2.filter[,-c(1:3)]
-#rownames(otu.2.filter)
+otu.2.filter <- bind_cols(meta, otu.2) %>%
+  filter(source=="bulk") %>%
+  filter(year=="2018") 
+head(otu.2.filter)
+rownames(otu.2.filter)=otu.2.filter$sample
+otu.2.filter <- otu.2.filter[,-c(1:26)]
+head(otu.2.filter)
 
-#FROM META - remove blocks 1, 3, 5, 7 and treatments C & F
-meta <- meta[which(meta$block!=1 & meta$block!=3 & meta$block!=5 & meta$block!=7 & meta$treatment!="C" & meta$treatment!="F"),]
+#FROM META - Select only bulk from 2018 
+meta.filter <- meta %>%
+  filter(source=="bulk") %>%
+  filter(year=="2018")
 
-
-#What sample has lowest read count? WRC18_201 16668, highest WRC15_82 351446
-otu2<- colSums(t(otu.2))
-otu2[which.min(colSums(t(otu.2)))]
-otu2[which.max(colSums(t(otu.2)))]
+#What sample has lowest read count? WRC18_174 24513, highest WRC15_167 69111
+otu2<- colSums(t(otu.2.filter))
+otu2[which.min(colSums(t(otu.2.filter)))] 
+otu2[which.max(colSums(t(otu.2.filter)))]
 #remove WRC18_201
 #rownames(otu.2)
-otu.2 <- otu.2[-c(41),]
+#otu.2 <- otu.2[-c(41),]
 #meta$sample
-meta <- meta[-c(41),]
-#Now WRC18_208 is lowest sample t 26119 reads. Both WRC18_201 and WRC18_208 are EC 201-M. 208-MF
+#meta <- meta[-c(41),]
 
 #graph of read counts, need to work on y axis
-c<-as.data.frame(otu.2)
+c<-as.data.frame(otu.2.filter)
 c$colsum <- colSums(t(c))
 c$group <- rownames(c)
 p<-ggplot(c, aes(x=group,y=colsum))+geom_bar(stat="identity")+coord_flip()
@@ -108,10 +99,10 @@ p
 
 #Rarefy
 #Set min sample number
-min.N <- min(rowSums(otu.2))
+min.N <- min(rowSums(otu.2.filter))
 #rrarefy returns a randomly rarefied community data frame or vector of selected size
 #This is the otu set that should be used for beta diversity metrics
-otu.rare <- rrarefy(otu.2, min.N)
+otu.rare <- rrarefy(otu.2.filter, min.N)
 ```
 
 ```{r rarefaction curve}
@@ -123,6 +114,7 @@ rarecurve(x = otu.2, step = 20, col="blue", cex=0.6, las=1)
 abline(0,1,col='red')
 text(1000,1000,"1:1",pos=2, col='red')
 ```
+
 ```{r Relative abundance and PERMANOVA }
 #transforms read counts to relative abundance
 #Using rarefied OTU dataset
@@ -132,15 +124,59 @@ for(i in 1:dim(otu.rare)[1]){
 }
 
 #Combine experimental deisng meta data with OTU relative abundance data
-metaotu <- cbind(meta, otu.2.rel)
+metaotu <- cbind(meta.filter, otu.2.rel)
 #Where does otu data begin, remove for PERMANOVA
 #metaotu[1,20:21]
 
 #PERMANOVA with source and treatment as factors
 #Among all treatments source (soil source) and treatment
-metaotu.ad <- adonis(metaotu[,-c(1:19)] ~source*treatment*year, method = "bray", data = metaotu, perm=1000, set.seed=42)
+metaotu.ad <- adonis(metaotu[,-c(1:26)] ~ fertilized*mowed, method = "bray", data = metaotu, perm=1000, set.seed=42)
 #metaotu.ad <- adonis(metaotu[,-c(1:19)] ~source*treatment*year, method = "bray", data = metaotu, perm=1000, set.seed=42)
 metaotu.ad 
+
+#Tries to make a 1GB vector and fails even with 1 permutation
+#require("RVAideMemoire")
+#metaotu.ad.1 <- metaotu[which(metaotu$treatment=='M'),]
+#p <- pairwise.perm.manova(metaotu.ad.1[,-c(1:19)],metaotu.ad.1$source,nperm=1)
+
+#Another attempt at pairwise adonis but not sure that this method has been well worked out by the authors
+#require("pairwiseAdonis")
+#data(metaotu)
+#pairwise.adonis(metaotu[,-c(1:19)],metaotu$pxt)
+
+#source (soil source) is significant but the PCoA suggests that it is only significant between source and rhizosphere and not source functionl type (grass, forb). Because I can't run a global pairwise analysis I will run individual pairwise analysis between source(soil sources) within a treatment. 
+#source (soil source) within treatment
+
+#Pairwise adonis/PERMANOVA of soil source within a treatment
+#MOWED UNFERTILIZED
+#metaotu.M <- metaotu[which(metaotu$treatment=='M'),]
+#metaotu.M.GF <- metaotu.M[which(metaotu.M$source!='bulk'),]
+#metaotu.M.BG <- metaotu.M[which(metaotu.M$source!='ec'),]
+#metaotu.M.BF <- metaotu.M[which(metaotu.M$source!='av'),]
+
+#metaotu.M.GF.ad <- adonis(metaotu.M.GF[,-c(1:19)] ~ source, method = "bray", data = metaotu.M.GF, perm=1000, set.seed=42)
+#metaotu.M.GF.ad 
+
+#metaotu.M.BG.ad <- adonis(metaotu.M.BG[,-c(1:19)] ~ source, method = "bray", data = metaotu.M.BG, perm=1000, set.seed=42)
+#metaotu.M.BG.ad 
+
+#metaotu.M.BF.ad <- adonis(metaotu.M.BF[,-c(1:19)] ~ source, method = "bray", data = metaotu.M.BF, perm=1000, set.seed=42)
+#metaotu.M.BF.ad 
+
+#MOWED FERTILIZED
+#metaotu.MF <- metaotu[which(metaotu$treatment=='MF'),]
+#metaotu.MF.GF <- metaotu.MF[which(metaotu.MF$source!='bulk'),]
+#metaotu.MF.BG <- metaotu.MF[which(metaotu.MF$source!='ec'),]
+#metaotu.MF.BF <- metaotu.MF[which(metaotu.MF$source!='av'),]
+
+#metaotu.MF.GF.ad <- adonis(metaotu.MF.GF[,-c(1:19)] ~ source, method = "bray", data = metaotu.MF.GF, perm=1000, set.seed=42)
+#metaotu.MF.GF.ad 
+
+#metaotu.MF.BG.ad <- adonis(metaotu.MF.BG[,-c(1:19)] ~ source, method = "bray", data = metaotu.MF.BG, perm=1000, set.seed=42)
+#metaotu.MF.BG.ad 
+
+#metaotu.MF.BF.ad <- adonis(metaotu.MF.BF[,-c(1:19)] ~ source, method = "bray", data = metaotu.MF.BF, perm=1000, set.seed=42)
+#metaotu.MF.BF.ad 
 
 ```
 ```{r Calculate distance matrix and PCoA components }
@@ -162,16 +198,10 @@ explainvar2a
 ```
 
 ```{r PCoA Plot }
-all.equal(rownames(meta), rownames(otu.2.rel))
-# Set treatments
-treat1 <- as.factor(meta$source)
-levels(treat1) <- ordered(c("bulk","grass", "forb"))
-treat2 <- as.factor(meta$treatment)
-#treat3 <-as.factor(meta$year)
-#levels(treat2) <- c("M", "MF")
+all.equal(rownames(meta.filter), rownames(otu.2.rel))
 
-pcoa.groups <- paste(meta$source, meta$treatment, meta$year, sep = "_")
-#pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
+#pcoa.groups <- paste(meta$source, meta$treatment, meta$year, sep = "_")
+pcoa.groups <- paste(meta.filter$fertilized, meta.filter$mowed, sep = "_")
 
 
 pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
@@ -187,42 +217,43 @@ pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
 colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
 pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
 
-pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
-pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
-pcoa.col2 <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3)) #year
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1)) # fert
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2))  # mow
+#pcoa.col2 <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 3)) #year
 
 #pcoa.shape <- ordered(c("A. virginicus", "Bulk Soil", "E. caroliniana"))
 #pcoa.shape <- ordered(pcoa.shape,levels=c("bulk","av", "ec"))
 #pcoa.shape <- revalue(pcoa.shape, c("bulk"="Bulk Soil", "av"="Grass", "ec"="Forb"))
 #pcoa.shape <- mapvalues(pcoa.shape, from = c("bulk","av","ec"), to = c("Bulk Soil", "Grass", "Forb"))
 
-levels(pcoa.col) <- c("Unfertilized","Fertilized")
+levels(pcoa.col) <- c("Fertilized", "Unfertilized")
+levels(pcoa.shape) <-c("Mowed", "Unmowed")
 
 #Removed RS samples becuase only have soil porperty values for RP samples
 #Run envfit to see which soil varibales are predicators 
 colnames(meta)
 
-fit<-envfit(otu.2.rel.dist.pcoa$points, meta[,-c(1:3,8:9,11,18:19)], perm=1000, na.rm=T, set.seed=42)
-fit
+##fit<-envfit(otu.2.rel.dist.pcoa$points, meta[,-c(1:3,8:9,11,18:19)], perm=1000, na.rm=T, set.seed=42)
+##fit
 
-A <-as.list(fit$vectors)
-vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.35)
-p<- as.data.frame(A$pvals)
-vec <- cbind(vec, p) 
-vec <-  subset(vec, A$pvals<=0.05)
+##A <-as.list(fit$vectors)
+##vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.35)
+##p<- as.data.frame(A$pvals)
+##vec <- cbind(vec, p) 
+##vec <-  subset(vec, A$pvals<=0.05)
 
-vec$parm<-rownames(vec)
-colnames(vec)
+##vec$parm<-rownames(vec)
+##colnames(vec)
 #vec$parm<-c("Moisture","pH","C%","N%")
 
 #plot PCoA
 df1a <- as.data.frame(pcoa.cent.dataframe)
 plot1 <- ggplot(df1a, aes(x=V1, y=V2,  color=pcoa.col, shape = pcoa.shape, 
-                 group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2)) + theme_bw() 
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
 plot1 +
 #group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
     geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=8) +
-  geom_point(aes(colour=pcoa.col2), size =5.0)+ 
+  #geom_point(aes(colour=pcoa.col2), size =5.0)+ 
   #geom_point(aes(colour=pcoa.col2), size =4.0)+
   #removes gridlines from plot
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
@@ -241,11 +272,11 @@ plot1 +
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   #Set colors for treatments
   #scale_colour_manual(values = c("#999999", "#000000")) +
-  scale_colour_manual(values = c("#EB8F43", "#9BBB59","purple","red","yellow","blue","gray","pink","magenta")) +
+  scale_colour_manual(values = c("darkgreen", "gray")) +
   #Would have liked to set shapes but couldn't get this to work
   #scale_shape_manual(values = c(22, 21, 24)) +
   #Sets map coordinates
-  coord_cartesian(xlim = c(-0.1, 0.1), ylim = c(-0.1, 0.1)) +
+  ##coord_cartesian(xlim = c(-0.1, 0.1), ylim = c(-0.1, 0.1)) +
   #Sets axis text and put border around plot
   theme(axis.title = element_text(size=14), 
         axis.text.x = element_text(size=14),  axis.text.y = element_text(size=14),
@@ -257,13 +288,13 @@ plot1 +
   #Sets size of tick marks on axis
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   #Sets labels for plot title, axis titles, and legend headings
-  xlab("PCoA 1 (23.4%)") + ylab("PCoA 2 (18.2%)") + 
-  labs(shape = "Soil Source") +
-  labs(colour="treatment") +
+  xlab("PCoA 1 (25.1%)") + ylab("PCoA 2 (12.9%)") + 
+  labs(shape = "Mowed") +
+  labs(colour="Fertilized") +
   ggtitle("16S rRNA Microbial Community Analysis") 
   
 #Save a copy of the plot
-ggsave("../figures/WRC18_Rhizo/phylo_WRC2018Rhizo.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
+ggsave("../figures/WRC18_Rhizo/phylo_WRC2018all.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=8.7, height=6.3, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -273,7 +304,7 @@ otu.2.PA<-(otu.rare>0*1)
 #sanity check 
 #otu.2.PA[,1:5]
 #Add meta data
-metaotu.2 <- cbind(meta, otu.2.PA)
+metaotu.2 <- cbind(meta.filter, otu.2.PA)
 #metaotu.2[1:15]
 #Transform True/False to 0/1 
 cols <- sapply(metaotu.2, is.logical)
@@ -283,19 +314,21 @@ metaotu.2[,cols]<-lapply(metaotu.2[,cols],as.numeric)
 
 ```{r diversity metrics: richness}
 #chao1 richness index
-chao1 <- estimateR(otu.2)
+chao1 <- estimateR(otu.2.filter)
 c <- as.data.frame(chao1)
 ct <- t(c)
-otu.div <- cbind(meta, ct)
+row.names(meta.filter)=row.names(ct)
+otu.div <- cbind(meta.filter, ct)
 
 #interaction variable so can use Tukey
-i <- with(otu.div, interaction(treatment, source))
+levels(otu.div$fertilized)<-c("Unfertilized", "Fertilized")
+i <- with(otu.div, interaction(fertilized, mowed))
 
-richness.lm <- aov(S.chao1 ~ treatment + source + i, data = otu.div)
+richness.lm <- aov(S.chao1 ~ fertilized + mowed + i, data = otu.div)
 plot(richness.lm)
 anova(richness.lm)
 #Get Tukey post hoc groups p<=0.01*
-t <- HSD.test(richness.lm, "i", group=TRUE, alpha=.05)
+t <- HSD.test(richness.lm, "i", group=TRUE, alpha=.01)
 t
 plot(t)
 
@@ -306,16 +339,18 @@ plot(t)
 #p <- revalue(p, c("bulk"="Bulk Soil", "av"="Grass", "ec"="Forb"))
 #p <- mapvalues(p, from = c("bulk","av","ec"), to = c("Bulk Soil", "Grass", "Forb"))
 
+
 #Plot
-chao<- ggplot(otu.div, aes(x=i, y=S.chao1, fill=treatment))  +
-  geom_boxplot(binaxis='y', stackdir='center') + scale_fill_manual(values=c("#999999", "#000000")) +
+chao<- ggplot(otu.div, aes(x=treatment, y=S.chao1))  +
+  geom_boxplot(binaxis='y', stackdir='center') + 
+  scale_fill_manual(values=c("#999999", "#000000", "darkgreen", "gray")) +
 #Set labels for Tukey groups
-annotate("text",x=0.82,y=5200, label="b") +
-annotate("text",x=1.81,y=5400, label="b") +
-annotate("text",x=2.81,y=5725, label="b") +
-annotate("text",x=1.1815,y=7050, label="a") +
-annotate("text",x=2.19,y=6600, label="bc") + 
-annotate("text",x=3.19,y=6250, label="ab") + 
+#annotate("text",x=0.82,y=5200, label="b") +
+#annotate("text",x=1.81,y=5400, label="b") +
+#annotate("text",x=2.81,y=5725, label="b") +
+#annotate("text",x=1.1815,y=7050, label="a") +
+#annotate("text",x=2.19,y=6600, label="bc") + 
+#annotate("text",x=3.19,y=6250, label="ab") + 
 #Set plot elements
 theme_bw()  +
 #Remove plot gridlines
@@ -329,7 +364,7 @@ theme(axis.title=element_text(size=14,face="bold"),
           labs(x = "", y = "Chao1 species richness")
 chao
 #Save a copy of the plot
-ggsave("../figures/chao1.jpg", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../figures/chao1_all.jpg", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 
 ```
@@ -352,17 +387,17 @@ otu.div <- cbind(otu.div,shannon,J, simp, invsimp)
 
 ```{r diversity metrics - display shannon }
 #Run richness first. interaction, levels, and treatments for plotting set there
-shannon.lm <- aov(shannon ~ treatment * source * year +i, data = otu.div)
+shannon.lm <- aov(shannon ~ fertilized + mowed + i, data = otu.div)
 plot(shannon.lm)
 anova(shannon.lm)
-i = with(otu.div,(interaction(source, year)))
+i = with(otu.div,(interaction(fertilized,mowed)))
 #Tukey groups at p<=0.01*
-t <- HSD.test(shannon.lm, "i", group=TRUE, alpha=0.01)
+t <- HSD.test(shannon.lm, "i", group=TRUE, alpha=0.05)
 t
 plot(t)
 
 #p is set in richness chuck
-shan<- ggplot(otu.div, aes(x=i, y=shannon, fill=treatment))  +
+shan<- ggplot(otu.div, aes(x=treatment, y=shannon))  +
   geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000"))  + 
   #facet_grid(~ year) +
 #annotate("text",x=0.82,y=6.1, label="bc") +
@@ -385,11 +420,11 @@ theme(axis.title=element_text(size=14,face="bold"),
 
 shan
 
-ggsave("../figures/shannon.jpg", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../figures/shannon_all.jpg", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 ```
 
 ```{r diversity metrics - Pielous evennes J}
-J.lm <- aov(J ~ treatment + source + i , data = otu.div)
+J.lm <- aov(J ~ fertilized + mowed + i , data = otu.div)
 plot(J.lm)
 anova(J.lm)
 #TukeyHSD(J.lm)
@@ -420,7 +455,7 @@ theme_bw()  +
 
 even 
 
-ggsave("../figures/even.jpg", plot=even, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
+ggsave("../figures/even_all.jpg", plot=even, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -466,54 +501,89 @@ meta.env.2018.rhizo.means <- meta.env.2018.rhizo %>%
   summarise_all(funs(mean,sd), na.rm=T)
 
 
-####STOPPED HERE --- 2015 analyses
+####STOPPED HERE --- 2018 analyses
 
-i <- with(meta.env.2015.rhizo, interaction(treatment, source))
+i <- with(meta.filter, interaction(fertilized, mowed))
 
-nh4 <- aov(n_nh4_ug_gsoil ~ treatment + source + i, meta.env.2015.rhizo)
+nh4 <- aov(n_nh4_ug_gsoil ~ fertilized+mowed + i, meta.filter)
 plot(nh4)
 anova(nh4)
 
-nh4<- ggplot(meta.env.2015.rhizo, aes(x=treatment, y=n_nh4_ug_gsoil, fill=source))  +
-  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333"))
+nh4<- ggplot(meta.filter, aes(x=treatment, y=n_nh4_ug_gsoil))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
 nh4
 
-pH <- aov(pH ~ treatment + source + i , meta.env.2015.rhizo)
-plot(pH)
-anova(pH)
-
-ppH<- ggplot(meta.env.2015.rhizo, aes(x=treatment, y=pH, fill=source))  +
-  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000", "333333"))
-ppH
-
-t <- HSD.test(pH, "source" , group=TRUE, alpha=0.05)
-t
-plot(t)
-
-no3 <- aov(n_no3_ug_gsoil ~ treatment + source + i, data=meta.env.2015.rhizo) 
+no3 <- aov(n_no3_ug_gsoil ~ fertilized+mowed + i, meta.filter)
 plot(no3)
 anova(no3)
 
-t <- HSD.test(no3, "source" , group=TRUE, alpha=0.05)
-t
-plot(t)
+no3<- ggplot(meta.filter, aes(x=treatment, y=n_nh4_ug_gsoil))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+no3
 
+po4h <- aov(p_po4_hcl_ug_gsoil ~ fertilized+mowed + i, meta.filter)
+plot(po4h)
+anova(po4h)
 
-moist_percent <- aov(moist_percent ~ treatment + source + i, data=meta.env.2015.rhizo) 
-plot(moist_percent)
-anova(moist_percent)
+po4h<- ggplot(meta.filter, aes(x=treatment, y=p_po4_hcl_ug_gsoil))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+po4h
 
-c_percent <- aov(c_percent ~ treatment + source + i, data=meta.env.2015.rhizo) 
-plot(c_percent)
-anova(c_percent)
+po4w <- aov(p.po4_w_ug_gsoil ~ fertilized+mowed + i, meta.filter)
+plot(po4w)
+anova(po4w)
 
-n_percent <- aov(n_percent ~ treatment + source + i, data=meta.env.2015.rhizo) 
-plot(n_percent)
-anova(n_percent)
+po4w<- ggplot(meta.filter, aes(x=treatment, y=p.po4_w_ug_gsoil))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+po4w
 
-C_N <- aov(C_N ~ treatment + source + i, data=meta.env.2015.rhizo) 
-plot(C_N)
-anova(C_N)
+pH <- aov(pH ~ fertilized+mowed + i, meta.filter)
+plot(pH)
+anova(pH)
+
+pH<- ggplot(meta.filter, aes(x=treatment, y=pH))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+pH
+
+c_p <- aov(c_percent ~ fertilized+mowed + i, meta.filter)
+plot(c_p)
+anova(c_p)
+
+c_p<- ggplot(meta.filter, aes(x=treatment, y=c_percent))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+c_p
+
+n_p <- aov(n_percent ~ fertilized+mowed + i, meta.filter)
+plot(n_p)
+anova(n_p)
+
+n_p<- ggplot(meta.filter, aes(x=treatment, y=n_percent))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+n_p
+
+c_n <- aov(C_N ~ fertilized+mowed + i, meta.filter)
+plot(c_n)
+anova(c_n)
+
+c_n<- ggplot(meta.filter, aes(x=treatment, y=C_N))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+c_n
+
+temp <- aov(temp2_C ~ fertilized+mowed + i, meta.filter)
+plot(temp)
+anova(temp)
+
+temp<- ggplot(meta.filter, aes(x=treatment, y=temp2_C))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+temp
+
+moist <- aov(moist_percent ~ fertilized+mowed + i, meta.filter)
+plot(moist)
+anova(moist)
+
+moist<- ggplot(meta.filter, aes(x=treatment, y=moist_percent))  +
+  geom_boxplot() + scale_fill_manual(values=c("#999999", "#000000","333333","222222"))
+moist
 
 ```
 
