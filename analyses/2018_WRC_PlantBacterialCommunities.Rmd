@@ -220,10 +220,11 @@ aa <- (rowSums(otu_removal))
 aa #looks good
 ```
 # Diversity Metrics - Hypothesis Testing
-```{r Diversity Metrics - Bacteria, echo=TRUE}
+```{r Diversity Metrics - Plant, echo=TRUE}
 # Fisher's Alpha
 ##ERRORS HERE
-fisher <- fisher.alpha(PCC.2018)
+PCC.2018.PA <- decostand(PCC.2018, method="pa", na.rm=TRUE)
+fisher <- fisher.alpha(PCC.2018.PA)
 
 # Species Richness
 #richness <- rowSums((PWESdata.r >= 1))
