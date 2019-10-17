@@ -343,7 +343,7 @@ plot2a + theme(panel.grid.major = element_blank(),
         axis.text.x = element_text(size=14), 
         panel.border = element_rect(colour = "black", size = 1.25)) + 
   theme(axis.ticks.length = unit(0.3, "cm")) + 
-        xlab("PCoA 1 (26.1%)") + ylab("PCoA 2 (17.8%)") +
+        xlab("PCoA 1 (37.7%)") + ylab("PCoA 2 (21.7%)") +
         labs(colour = "Treatment", shape = "Ditch") +
     guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
            shape = guide_legend(override.aes = list(size = 4)))+
