@@ -1,0 +1,26 @@
+OTU	Cluster	IndVal	Prob	domain	phylum	class	order	family	genus
+Otu00030	1	0.340715502555366	0.003	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  
+Otu00043	1	0.344262295081967	0.012	Bacteria	Proteobacteria	Alphaproteobacteria	Rhodospirillales	Rhodospirillales  	Rhodospirillales  
+Otu00057	1	0.390922401171303	0.004	Bacteria	Proteobacteria	Proteobacteria  	Proteobacteria  	Proteobacteria  	Proteobacteria  
+Otu00058	1	0.292553191489362	0.012	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales  	Rhizobiales  
+Otu00081	1	0.326732673267327	0.01	Bacteria	Verrucomicrobia	Spartobacteria	Spartobacteria  	Spartobacteria  	Spartobacteria  
+Otu00119	1	0.309810671256454	0.004	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  
+Otu00123	1	0.432835820895522	0.001	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  
+Otu00139	1	0.294230769230769	0.018	Bacteria	Acidobacteria	Acidobacteria Gp3	Gp3	Gp3  	Gp3  
+Otu00159	1	0.365313653136531	0.012	Bacteria	Proteobacteria	Betaproteobacteria	Betaproteobacteria  	Betaproteobacteria  	Betaproteobacteria  
+Otu00160	1	0.413793103448276	0.01	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae  
+Otu00209	1	0.413793103448276	0.019	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  
+Otu00265	1	0.6	0.002	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  
+Otu00366	1	0.42156862745098	0.009	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae  
+Otu00021	2	0.290909090909091	0.006	Bacteria	Actinobacteria	Actinobacteria	Solirubrobacterales	Solirubrobacterales  	Solirubrobacterales  
+Otu00036	2	0.34888178913738	0.002	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  
+Otu00073	2	0.437246963562753	0.001	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  
+Otu00101	2	0.319057815845824	0.011	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  
+Otu00212	2	0.352380952380952	0.008	Bacteria	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  
+Otu00243	2	0.324324324324324	0.005	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  
+Otu00253	2	0.419689119170984	0.005	Bacteria	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  
+Otu00142	3	0.384848484848485	0.007	Bacteria	Proteobacteria	Gammaproteobacteria	Xanthomonadales	Xanthomonadaceae	Dyella
+Otu00235	4	0.253561253561254	0.008	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae  
+Otu00061	5	0.241906474820144	0.02	Bacteria	Proteobacteria	Alphaproteobacteria	Alphaproteobacteria incertae sedis	Rhizomicrobium	Rhizomicrobium  
+Otu00117	5	0.385852090032154	0.007	Bacteria	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae  
+Otu00470	5	0.308108108108108	0.011	Bacteria	Proteobacteria	Gammaproteobacteria	Gammaproteobacteria  	Gammaproteobacteria  	Gammaproteobacteria  

@@ -1,0 +1,18 @@
+OTU	Cluster	IndVal	Prob	phylum	class	order	family	genus	OTU
+Otu00030	1	0.340715502555366	0.004	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  	Otu00030
+Otu00057	1	0.390922401171303	0.001	Proteobacteria	Proteobacteria  	Proteobacteria  	Proteobacteria  	Proteobacteria  	Otu00057
+Otu00058	1	0.292553191489362	0.01	Proteobacteria	Alphaproteobacteria	Rhizobiales	Rhizobiales  	Rhizobiales  	Otu00058
+Otu00081	1	0.326732673267327	0.009	Verrucomicrobia	Spartobacteria	Spartobacteria  	Spartobacteria  	Spartobacteria  	Otu00081
+Otu00119	1	0.309810671256454	0.008	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  	Otu00119
+Otu00123	1	0.432835820895522	0.001	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  	Otu00123
+Otu00160	1	0.413793103448276	0.009	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae  	Otu00160
+Otu00265	1	0.6	0.002	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  	Otu00265
+Otu00021	2	0.290909090909091	0.005	Actinobacteria	Actinobacteria	Solirubrobacterales	Solirubrobacterales  	Solirubrobacterales  	Otu00021
+Otu00036	2	0.34888178913738	0.003	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  	Otu00036
+Otu00073	2	0.437246963562753	0.001	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  	Otu00073
+Otu00212	2	0.352380952380952	0.008	Acidobacteria	Acidobacteria Gp1	Gp1	Gp1  	Gp1  	Otu00212
+Otu00243	2	0.324324324324324	0.004	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  	Otu00243
+Otu00253	2	0.419689119170984	0.006	Acidobacteria	Acidobacteria Gp2	Gp2	Gp2  	Gp2  	Otu00253
+Otu00142	3	0.384848484848485	0.01	Proteobacteria	Gammaproteobacteria	Xanthomonadales	Xanthomonadaceae	Dyella	Otu00142
+Otu00117	5	0.385852090032154	0.008	Planctomycetes	Planctomycetia	Planctomycetales	Planctomycetaceae	Planctomycetaceae  	Otu00117
+Otu00470	5	0.308108108108108	0.009	Proteobacteria	Gammaproteobacteria	Gammaproteobacteria  	Gammaproteobacteria  	Gammaproteobacteria  	Otu00470

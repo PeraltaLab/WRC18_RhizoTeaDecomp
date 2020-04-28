@@ -1,0 +1,10 @@
+Substance	Cluster	IndVal	Prob
+6-phosphate gluconic acid	4	0.218716684044659	0.007
+cytidine-2-monophosphate	3	0.402556711367339	0.037
+D-glucosamine-6-phosphate	3	0.226988415559421	0.001
+D-mannose-6-phosphate	3	0.220519787096631	0.004
+guanosine-3-monophosphate	6	0.21059949942394	0.023
+phosphoryl choline	3	0.234408858197404	0.017
+thymidine-3-monophosphate	6	0.23016705984305	0.049
+tripolyphosphate	4	0.221756331789132	0.019
+uridine-5-monophosphate	4	0.235222006278965	0.031

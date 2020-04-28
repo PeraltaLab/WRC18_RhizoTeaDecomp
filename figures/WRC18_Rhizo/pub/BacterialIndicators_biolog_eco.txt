@@ -1,0 +1,2 @@
+Substance	Cluster	IndVal	Prob
+Itaconic acid	4	0.236303240504305	0.041
