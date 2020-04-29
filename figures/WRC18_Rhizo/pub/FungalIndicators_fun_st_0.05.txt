@@ -1,0 +1,71 @@
+OTU_ID	Cluster	IndVal	Prob	domain	phylum	class	order	family	genus	species
+OTU3	1	0.302270511213261	0.003	Fungi	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium	
+OTU23	1	0.942982456140351	0.004	Fungi						
+OTU109	1	0.9	0.002	Fungi	Ascomycota					
+OTU354	1	0.628318584070796	0.001	Fungi	Ascomycota					
+OTU93	1	0.489971346704871	0.049	Fungi	Ascomycota	Leotiomycetes	Leotiomycetes ord Incertae sedis	Leotiomycetes fam Incertae sedis	Leohumicola	Leohumicola verrucosa
+OTU178	1	0.656028368794326	0.003	Fungi	Ascomycota					
+OTU153	1	0.867469879518072	0.004	Fungi	Ascomycota					
+OTU177	1	0.772058823529412	0.009	Fungi	Ascomycota	Orbiliomycetes	Orbiliales			
+OTU182	1	0.407407407407407	0.013	Fungi	Mucoromycota	Umbelopsidomycetes	Umbelopsidales	Umbelopsidaceae	Umbelopsis	Umbelopsis dimorpha
+OTU159	1	0.884057971014493	0.001	Fungi	Ascomycota					
+OTU429	1	0.602362204724409	0.041	Fungi	Ascomycota					
+OTU231	1	0.496794871794872	0.025	Fungi	Ascomycota					
+OTU1181	1	0.5	0.003	Fungi						
+OTU226	1	0.421052631578947	0.045	Fungi	Basidiomycota	Agaricomycetes				
+OTU2133	1	0.657439446366782	0.013	Fungi	Ascomycota	Leotiomycetes	Leotiomycetes ord Incertae sedis	Pseudeurotiaceae	Pseudeurotium	Pseudeurotium hygrophilum
+OTU2120	1	0.455	0.003	Fungi						
+OTU511	1	0.373831775700935	0.022	Fungi						
+OTU216	1	0.532710280373832	0.027	Fungi	Ascomycota					
+OTU424	1	0.855421686746988	0.001	Fungi	Ascomycota					
+OTU1133	1	0.507352941176471	0.025	Fungi						
+OTU2447	1	0.6953125	0.014	Fungi						
+OTU370	1	0.638613861386139	0.016	Fungi	Ascomycota					
+OTU1815	1	0.420168067226891	0.031	Fungi						
+OTU1206	1	0.474137931034483	0.017	Fungi						
+OTU476	1	0.432835820895522	0.037	Fungi						
+OTU561	1	0.696132596685083	0.022	Fungi	Ascomycota					
+OTU681	1	0.466101694915254	0.029	Fungi						
+OTU2102	1	0.557591623036649	0.039	Fungi	Ascomycota					
+OTU1020	1	0.515151515151515	0.022	Fungi	Ascomycota					
+OTU988	1	0.512755102040816	0.044	Fungi	Ascomycota					
+OTU69	2	0.721638655462185	0.013	Fungi	Ascomycota					
+OTU119	2	0.417142857142857	0.046	Fungi	Ascomycota	Sordariomycetes	 	 	 	 
+OTU111	2	0.563380281690141	0.013	Fungi	Ascomycota					
+OTU1256	2	0.410596026490066	0.028	Fungi						
+OTU473	2	0.693877551020408	0.019	Fungi	Ascomycota	Sordariomycetes	Sordariales	Lasiosphaeriaceae	Echria	
+OTU25	3	0.453704944392336	0.009	Fungi	Ascomycota					
+OTU46	3	0.481802426343154	0.006	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Ophiocordycipitaceae	Tolypocladium	
+OTU127	3	0.508968609865471	0.015	Fungi						
+OTU327	3	0.583756345177665	0.001	Fungi	Ascomycota	Leotiomycetes	Helotiales			
+OTU677	3	0.403846153846154	0.041	Fungi	Ascomycota					
+OTU422	3	0.650442477876106	0.039	Fungi	Basidiomycota	Agaricomycetes	Sebacinales	Serendipitaceae		
+OTU28	4	0.495967741935484	0.045	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Clavicipitaceae		
+OTU37	4	0.48978102189781	0.024	Fungi	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium	
+OTU36	4	0.561151079136691	0.024	Fungi	Ascomycota	Orbiliomycetes	Orbiliales	Orbiliaceae		
+OTU62	4	0.485884101040119	0.004	Fungi	Basidiomycota	Tremellomycetes	Filobasidiales	Piskurozymaceae	Solicoccozyma	Solicoccozyma terricola
+OTU84	4	0.581818181818182	0.021	Fungi	Ascomycota					
+OTU148	4	0.430555555555556	0.006	Fungi	Ascomycota					
+OTU191	4	0.660427807486631	0.002	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Hypocreales fam Incertae sedis	Myxocephala	Myxocephala albida
+OTU124	4	0.432786885245902	0.039	Fungi	Ascomycota	Dothideomycetes	Pleosporales	Cucurbitariaceae	Pyrenochaetopsis	Pyrenochaetopsis leptospora
+OTU138	4	0.534798534798535	0.027	Fungi						
+OTU168	4	0.56797583081571	0.036	Fungi	Basidiomycota	Agaricomycetes				
+OTU200	4	0.552884615384615	0.002	Fungi	Chytridiomycota	Rhizophydiomycetes	Rhizophydiales	Terramycetaceae	 	 
+OTU155	4	0.563758389261745	0.022	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Hypocreaceae	Trichoderma	Trichoderma neorufum
+OTU170	4	0.666666666666667	0.019	Fungi	Ascomycota	Sordariomycetes	Sordariales	Chaetomiaceae	Chaetomium	Chaetomium homopilatum
+OTU353	4	0.629441624365482	0.008	Fungi	Basidiomycota	Agaricomycetes	Auriculariales	 	 	 
+OTU442	4	0.429752066115703	0.041	Fungi	Chytridiomycota					
+OTU378	4	0.416666666666667	0.024	Fungi	Mortierellomycota	Mortierellomycetes	Mortierellales	Mortierellaceae	Mortierella	Mortierella globulifera
+OTU335	5	0.623188405797101	0.048	Fungi	Basidiomycota	Agaricomycetes	Boletales	Suillaceae	Suillus	Suillus cothurnatus
+OTU136	5	0.650641025641026	0.034	Fungi	Ascomycota	Leotiomycetes	Helotiales	Hyaloscyphaceae	Arachnopeziza	
+OTU213	5	0.5372460496614	0.004	Fungi	Ascomycota	Dothideomycetes	Pleosporales			
+OTU242	5	0.545787545787546	0.028	Fungi	Ascomycota	Dothideomycetes	Capnodiales	Capnodiales fam Incertae sedis	Microcyclospora	 
+OTU314	5	0.712707182320442	0.007	Fungi	Basidiomycota	Agaricomycetes	Trechisporales	Hydnodontaceae	Trechispora	
+OTU438	5	0.396694214876033	0.033	Fungi	Ascomycota	Sordariomycetes				
+OTU565	5	0.534574468085106	0.05	Fungi	Basidiomycota	Agaricomycetes				
+OTU77	6	0.735145385587863	0.01	Fungi	Basidiomycota	Agaricomycetes	Agaricales			
+OTU42	6	0.963800904977376	0.007	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae		
+OTU1366	6	0.36405529953917	0.05	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Ophiocordycipitaceae	Tolypocladium	
+OTU240	6	0.576086956521739	0.019	Fungi	Ascomycota	Sordariomycetes	Chaetosphaeriales	Chaetosphaeriaceae	Chaetosphaeria	Chaetosphaeria fusiformis
+OTU328	6	0.816993464052288	0.026	Fungi						
+OTU492	6	0.716666666666667	0.004	Fungi	Ascomycota	Dothideomycetes	Pleosporales			

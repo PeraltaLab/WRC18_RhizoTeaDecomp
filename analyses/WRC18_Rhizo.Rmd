@@ -52,55 +52,238 @@ getwd()
 sharedfile = "../data/WRC18_Rhizo/WRC15_18Rhizo.opti_mcc.shared"
 taxfile = "../data/WRC18_Rhizo/WRC15_18Rhizo.opti_mcc.0.03.cons.taxonomy"
 metafile = "../data/WRC18_Rhizo/2015_2018_WestResearchCampus_Sampling_Summary.csv"
+fungalfile = "../data/WRC18_Rhizo/fungal_otu_table_rhizo.csv"
 
 #Read in design file
 meta <- read.csv(metafile)
-#head(meta)
 
-#Read in OTU file
-otu <- read.otu(sharedfile)
-
-#Read in taxonomy file
-#tax <- read.tax(taxfile)
-#read.tax does not work and I was unable to solve issue. I use phyloseq import_mothur as a work around. 
-tax <- import_mothur(mothur_constaxonomy_file =  taxfile)
-tax.df <- as.data.frame(tax)
-colnames(tax.df)=c("Domain","Phylum","Class", "Order","Family","Genus")
-tax <- tax_table(tax.df)
 ```
 
-```{r filter meta and otu datasets and rarefy - wrc18_Rhizo only , include=FALSE}
+```{r read in fungal OTUs}
+#Read in fungal file
+fungal_otu <- read.csv(fungalfile)
+
+fungal_otu <- fungal_otu %>%
+  column_to_rownames("OTU_ID")
+
+fungal_otu <- t(fungal_otu)
+
+#Removing mock community
+fungal_otu <- fungal_otu[-c(1:2),]
+
+#fungal taxa file - read in a clean up underscores (_) and "unidentified"
+fungal_taxa <- read.delim("../data/WRC18_Rhizo/otu_taxa_table_v1.txt", header=T, sep="\t")
+
+fungal_taxa_trim <- fungal_taxa %>%
+  mutate(k = substr(kingdom, 4, str_length(kingdom)), p = substr(phylum, 4, str_length(phylum)),c = substr(class, 4, str_length(class)), o = substr(order, 4, str_length(order)),  f = substr(family, 4, str_length(family)), g = substr(genus, 4, str_length(genus)), s = substr(species, 4, str_length(species))) %>%
+  dplyr::select(OTU_ID,domain=k,phylum=p,class=c,order=o,family=f,genus=g,species=s)%>%
+  mutate(phylum = str_replace_all(phylum,"_", " "), class = str_replace_all(class,"_", " "), order = str_replace_all(order,"_", " "), family = str_replace_all(family,"_", " "), genus = str_replace_all(genus,"_", " "), species = str_replace_all(species,"_", " "))%>%
+  mutate(phylum = str_replace(phylum,"unidentified", " "), class = str_replace(class,"unclassified", " "), order = str_replace(order,"unidentified", " "), family = str_replace(family,"unidentified", " "), genus = str_replace(genus,"unidentified", " "), species = str_replace(species,"unidentified", " "))
+
+```
+
+```{r Fungal Relative abundance and PERMANOVA}
+fungal_otu <- fungal_otu[, which(colSums(fungal_otu) > 3)]
+
+fun_otu<- colSums(t(fungal_otu))
+fun_otu
+fun_otu[which.min(colSums(t(fungal_otu)))]
+fun_otu[which.max(colSums(t(fungal_otu)))]
+###Otu table seems to be rarified already. All samples ~9500 OTUs
+
+#transforms read counts to relative abundance
+#Using rarefied OTU dataset
+fungal_otu.rel <- fungal_otu
+for(i in 1:dim(fungal_otu)[1]){
+  fungal_otu.rel[i,] <- fungal_otu[i,]/sum(fungal_otu[i,])
+}
+
+meta <- meta %>%
+  filter(year==2018) %>%
+  filter(treatment=="M" | treatment =="MF") %>%
+  filter(block==2 | block==4 | block==6 | block==8)
+
+#Combine experimental design meta data with OTU relative abundance data
+fun_metaotu <- cbind(meta, fungal_otu.rel)
+rownames(fun_metaotu) <- meta$sample
+
+
+#PERMANOVA with source and treatment as factors
+#Among all treatments source (soil source) and treatment
+fun_metaotu.ad <- adonis(fun_metaotu[,-c(1:26)] ~source*treatment, method = "bray", data = fun_metaotu, perm=1000, set.seed=42)
+
+fun_metaotu.ad 
+
+```
+
+```{r Fungal Calculate distance matrix and PCoA components - Taxa/Otus}
+
+fungal_otu.rel.dist<-vegdist(fungal_otu.rel, method="bray")
+
+# Principal Coordinates Analysis
+fungal_otu.rel.dist.pcoa <- cmdscale(fungal_otu.rel.dist, k=3, eig=TRUE, add=FALSE)
+# Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+# eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1a <- round(fungal_otu.rel.dist.pcoa$eig[1] / sum(fungal_otu.rel.dist.pcoa$eig), 3) * 100
+explainvar2a <- round(fungal_otu.rel.dist.pcoa$eig[2] / sum(fungal_otu.rel.dist.pcoa$eig), 3) * 100
+sum.eiga <- sum(explainvar1a, explainvar2a)
+
+explainvar1a #25.0
+explainvar2a #10.9
+
+```
+
+```{r PCoA Plot based on Taxa/Otus}
+rownames(fungal_otu.rel) <-meta$sample
+all.equal(rownames(meta), rownames(fungal_otu.rel))
+# Set treatments
+treat1 <- as.factor(meta$source)
+levels(treat1) <- ordered(c("bulk","grass", "forb"))
+treat2 <- as.factor(meta$treatment)
+#levels(treat2) <- c("M", "MF")
+
+pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
+pcoa.points <- data.frame(fungal_otu.rel.dist.pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
+
+levels(pcoa.col) <- c("M","MF")
+
+#Run envfit to see which soil varibales are predicators 
+#These are just the environmental parameters have values for bulk and rhizospehre soils
+fit<-envfit(fungal_otu.rel.dist.pcoa$points, meta[,-c(1:14, 17,22,24,25)], perm=1000, na.rm=T, set.seed=42)
+fit
+
+A <-as.list(fit$vectors)
+vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.35)
+p<- as.data.frame(A$pvals)
+vec <- cbind(vec, p) 
+vec <-  subset(vec, A$pvals<=0.05)
+
+vec$parm<-rownames(vec)
+colnames(vec)
+vec$parm<-c("C%","N%","NH4","PO4","OM%")
+
+#plot PCoA
+df1a <- as.data.frame(pcoa.cent.dataframe)
+plot1 <- ggplot(df1a, aes(x=V1, y=V2), group = interaction(pcoa.col, pcoa.shape)) + 
+  theme_bw() +
+#group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
+  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=10, stroke = 2) + 
+  #geom_point(aes(colour=pcoa.col2), size =4.0)+
+  #removes gridlines from plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black"))+ 
+  #Plot soil property vectors from envfit
+  geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
+     arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  #Label soil vectors. Using annotate because I can't figure out how to move segment text
+  #Note when re-run should double check envfit stats to make sure that soil parameters are the same
+  geom_text(data=vec,aes(x=Dim1,y=Dim2,label=vec$parm),size=5, inherit.aes=F)+
+  #annotate("text",x=-0.02,y=0.2, label="C%") +
+  #annotate("text",x=0.02,y=0.2, label="N%") +
+  #annotate("text",x=0,y=-.2, label="moisture") +
+  #annotate("text",x=0.1,y=-.225, label="pH") +
+  #annotate("text",x=0.1,y=-.225, label="pH") +
+  #Set error bacrs for geom_point+ 
+geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0), colour="black") +
+  #Set colors for treatments
+  #scale_colour_manual(values = c("#999999", "#000000")) +
+  scale_colour_manual(values = c("gray", "darkgreen","purple","red","yellow","blue","gray","pink","magenta")) +
+  #Would have liked to set shapes but couldn't get this to work
+  scale_shape_manual(values = c(16,22,15)) +
+  #Sets map coordinates
+  #coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.2, 0.2)) +
+  #Sets axis text and put border around plot
+  theme(axis.title = element_text(size=14),# face="bold"), 
+        axis.text.x = element_text(size=14, color="black"),  axis.text.y = element_text(size=14, color="black"),
+        panel.border = element_rect(colour = "black", size=1.25)) +
+  #Set plot title textsize
+  theme(plot.title=element_text(size=14)) +
+  #Set legend text size
+  theme(legend.text=element_text(size=14, face="bold"), legend.title = element_text(size=14, face="bold"))+
+  #Sets size of tick marks on axis
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  #Sets labels for plot title, axis titles, and legend headings
+  xlab("PCoA 1 (25.0%)") + ylab("PCoA 2 (10.9%)") + 
+  labs(shape = "Soil Source") +
+  labs(colour="Treatment") +
+  ggtitle("Fungal ITS2 Taxonomic Composition")+
+  theme(legend.position="right")+
+  theme(rect = element_rect(fill = "transparent")) +
+  theme(plot.background = element_rect(color=NA))
+  
+plot1 
+
+#Save a copy of the plot
+ggsave("../figures/WRC18_Rhizo/pub/ITS2_WRC2018Rhizo.jpg", plot=plot1, device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
+
+ggsave("../figures/WRC18_Rhizo/pub/ITS2_WRC2018Rhizo.png", plot=plot1, device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
+
+```
+
+```{r 16s rRNA Taxa}
+#Read in taxonomy file
+tax <- import_mothur(mothur_constaxonomy_file =  taxfile)
+tax.df <- as.data.frame(tax)
+colnames(tax.df)=c("domain","phylum","class", "order","family","genus")
+
+#Clean up taxonomy file. Remvoe underscores and unclassified
+tax.df <- tax.df %>%
+  mutate(phylum = str_replace_all(phylum,"_", " "), order = str_replace_all(order,"_", " "),class = str_replace_all(class,"_", " "), family = str_replace_all(family,"_", " "), genus = str_replace_all(genus,"_", " ")) %>%
+  mutate(phylum = str_replace_all(phylum,"unclassified", " "), order = str_replace_all(order,"unclassified", " "),class = str_replace_all(class,"unclassified", " "), family = str_replace_all(family,"unclassified", " "), genus = str_replace_all(genus,"unclassified", " "))
+```
+
+```{r read in 16S rRNA, include=FALSE}
+#Read in OTU file
+otu <- read.otu(sharedfile)
 #Remove OTUs with less than 2 occurences across all sites
-otu.2 <- otu[, which(colSums(otu) >2)]
-#If needed can try to reduce tax dataset by removing otus removed from otu file
-#otu.1 <- otu[, which(colSums(otu) <2)]
-#list <- colnames(otu.1)
-#This bit not working atm
-#tax.trim <- tax[-c(list),]
+otu.2 <- otu[, which(colSums(otu) > 3)]
 
 #Remove all RP samples
 #In the original WRC2015 sampling I collected bulk soils, and rhizospehre soils. Soil loosley adhering to roots was shaken into a bag (RP) for DNA and soil NH4/NO3 extraction. Roots and adhering soils collected for DNA processing (RS). Removed RP from DNA analysis.
 #WRC15_65-WRC15_80
 rownames(otu.2)
 otu.2 <-otu.2[-c(33:48),]
-#rownames(otu.2)
+rownames(otu.2)
 
 #FROM OTU - remove blocks 1, 3, 5, 7 and treatments C & F
 #First join meta and otu. Filter and then remove extra columns
-otu.2.filter <- as.data.frame(cbind(block = meta$block, treatment = meta$treatment, sample = meta$sample, year = meta$year, otu.2))
-otu.2.filter <- otu.2.filter[which(otu.2.filter$block!=1 & otu.2.filter$block!=3 & otu.2.filter$block!=5 & otu.2.filter$block!=7 & meta$treatment!="C" & meta$treatment!="F" & meta$year!=2015),]
-otu.2 <- otu.2.filter[,-c(1:4)]
+meta_all <- read.csv(metafile)
+#meta_all <- meta_all[-c(33:48),]
+
+otu.2.filter <- cbind(meta_all, otu.2)
+
+otu.2.filter <- otu.2.filter %>%
+  filter(year==2018) %>%
+  filter(treatment=="M" | treatment =="MF") %>%
+  filter(block==2 | block==4 | block==6 | block==8)
+
+rownames(otu.2.filter)<- otu.2.filter$sample
+
+otu.2 <- otu.2.filter[,-c(1:26)]
 rownames(otu.2.filter)
 
-#FROM META - remove blocks 1, 3, 5, 7 and treatments C & F
-meta <- meta[which(meta$block!=1 & meta$block!=3 & meta$block!=5 & meta$block!=7 & meta$treatment!="C" & meta$treatment!="F" & meta$year!=2015),]
 
 #What sample has lowest read count? WRC18_201 16668, next lowest is WRC18_200 43192 highest WRC15_167 68819
 otu2<- colSums(t(otu.2))
 otu2
 otu2[which.min(colSums(t(otu.2)))]
 otu2[which.max(colSums(t(otu.2)))]
-#Did not remove lowest sample
+#Did not remove lowest sample, when ran adonis did not change results
 #rownames(otu.2)
 #otu.2 <- otu.2[-c(17),]
 ```
@@ -119,6 +302,7 @@ min.N <- min(rowSums(otu.2))
 #rrarefy returns a randomly rarefied community data frame or vector of selected size
 #This is the otu set that should be used for beta diversity metrics
 otu.rare <- rrarefy(otu.2, min.N)
+
 ```
 
 ```{r rarefaction curve}
@@ -146,7 +330,7 @@ metaotu <- cbind(meta, otu.2.rel)
 
 #PERMANOVA with source and treatment as factors
 #Among all treatments source (soil source) and treatment
-metaotu.ad <- adonis(metaotu[,-c(1:23)] ~source*treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
+metaotu.ad <- adonis(metaotu[,-c(1:26)] ~source*treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
 
 metaotu.ad 
 
@@ -166,9 +350,230 @@ explainvar2a <- round(otu.2.rel.dist.pcoa$eig[2] / sum(otu.2.rel.dist.pcoa$eig),
 sum.eiga <- sum(explainvar1a, explainvar2a)
 
 explainvar1a #29.1
-explainvar2a #12.2
+explainvar2a #12.4
+
 
 ```
+
+
+
+```{r PCoA Plot based on Taxa/Otus}
+rownames(meta)<-meta$sample
+all.equal(rownames(meta), rownames(otu.2.rel))
+# Set treatments
+treat1 <- as.factor(meta$source)
+levels(treat1) <- ordered(c("bulk","grass", "forb"))
+treat2 <- as.factor(meta$treatment)
+#levels(treat2) <- c("M", "MF")
+
+pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
+pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
+
+levels(pcoa.col) <- c("Unfertilized","Fertilized")
+
+#Run envfit to see which soil varibales are predicators 
+#These are just the environmental parameters have values for bulk and rhizospehre soils
+fit<-envfit(otu.2.rel.dist.pcoa$points, meta[,-c(1:14, 17,22:25)], perm=1000, na.rm=T, set.seed=42)
+fit
+
+A <-as.list(fit$vectors)
+vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.35)
+p<- as.data.frame(A$pvals)
+vec <- cbind(vec, p) 
+vec <-  subset(vec, A$pvals<=0.05)
+
+vec$parm<-rownames(vec)
+colnames(vec)
+vec$parm<-c("N%", "C:N", "NH4", "PO4","OM%")
+
+#plot PCoA
+df1a <- as.data.frame(pcoa.cent.dataframe)
+plot1 <- ggplot(df1a, aes(x=V1, y=V2), group = interaction(pcoa.col, pcoa.shape)) + 
+  theme_bw() +
+#group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
+  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=10, stroke = 2) + 
+  #geom_point(aes(colour=pcoa.col2), size =4.0)+
+  #removes gridlines from plot
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black"))+ 
+  #Plot soil property vectors from envfit
+  geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
+     arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
+  #Label soil vectors. Using annotate because I can't figure out how to move segment text
+  #Note when re-run should double check envfit stats to make sure that soil parameters are the same
+  geom_text(data=vec,aes(x=Dim1,y=Dim2,label=vec$parm),size=5, inherit.aes=F)+
+  #annotate("text",x=-0.02,y=0.2, label="C%") +
+  #annotate("text",x=0.02,y=0.2, label="N%") +
+  #annotate("text",x=0,y=-.2, label="moisture") +
+  #annotate("text",x=0.1,y=-.225, label="pH") +
+  #Set error bacrs for geom_point+ 
+geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0), colour="black") +
+  #Set colors for treatments
+  #scale_colour_manual(values = c("#999999", "#000000")) +
+  scale_colour_manual(values = c("gray", "darkgreen","purple","red","yellow","blue","gray","pink","magenta")) +
+  #Would have liked to set shapes but couldn't get this to work
+  scale_shape_manual(values = c(16,22,15)) +
+  #Sets map coordinates
+  coord_cartesian(xlim = c(-0.3, 0.3), ylim = c(-0.3, 0.3)) +
+  #Sets axis text and put border around plot
+  theme(axis.title = element_text(size=24),# face="bold"), 
+        axis.text.x = element_text(size=24, color="black"),  axis.text.y = element_text(size=24, color="black"),
+        panel.border = element_rect(colour = "black", size=1.25)) +
+  #Set plot title textsize
+  theme(plot.title=element_text(size=24)) +
+  #Set legend text size
+  theme(legend.text=element_text(size=24, face="bold"), legend.title = element_text(size=24, face="bold"))+
+  #Sets size of tick marks on axis
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  #Sets labels for plot title, axis titles, and legend headings
+  xlab("PCoA 1 (29.1%)") + ylab("PCoA 2 (12.4%)") + 
+  labs(shape = "Soil Source") +
+  labs(colour="Treatment") +
+  ggtitle("16S rRNA V4 Taxonomic Composition")+
+  theme(legend.position="righ")+
+  theme(rect = element_rect(fill = "transparent")) +
+  theme(plot.background = element_rect(color=NA))
+  
+plot1 
+
+#Save a copy of the plot
+ggsave("../figures/WRC18_Rhizo/pub/16SrRNA_WRC2018Rhizo.png", plot=plot1, device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
+
+ggsave("../figures/WRC18_Rhizo/pub/16SrRNA_WRC2018Rhizo.pdf", plot=plot1, device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
+
+```
+
+```{r procrustes analysis fungal nad bacterial}
+#Do fungal and bacterial communities exhibit the same pattern?
+pro.1 <- procrustes(otu.2.rel.dist.pcoa, fungal_otu.rel.dist.pcoa, symmetric=TRUE, scores = "sites", choices = c(1, 2))
+pro.1
+
+pro.1 <- protest(X = fungal_otu.rel.dist.pcoa, Y =otu.2.rel.dist.pcoa , symmetric=TRUE, scores = "sites", permutations = 999) 
+pro.1
+
+#Sum of squates = 0.44
+#Correlation rotation = 0.75
+#Signifignce = 0.001
+#There is a significant correlation between bacterial and fungal communities
+
+plot(pro.1, kind=1, type='text')
+plot(pro.1, kind=2, type='text')
+```
+
+```{r network analysis}
+require(igraph)  
+require(Hmisc)  
+require(Matrix)   
+require(tidyr)
+fungal_otu <- as.data.frame(fungal_otu)
+#Select top 50 OTUs
+fungal_otu_50 <- fungal_otu %>% dplyr::summarise_all(dplyr::funs(sum)) 
+fungal_otu_50 <- as.data.frame(t(fungal_otu_50))
+fungal_otu_50 <- fungal_otu_50 %>%
+  tibble::rownames_to_column() %>%
+  dplyr::arrange(desc(V1)) %>%
+  dplyr::top_n(100)
+rownames(fungal_otu_50) <- fungal_otu_50$rowname
+
+fungal_otu_top_50 <- fungal_otu[,rownames(fungal_otu_50),drop=FALSE]
+#Use count data
+#Fungal first
+#############
+#require("SpiecEasi")
+#otu.cor <- sparcc(fungal_otu.rel, iter = 20, inner_iter = 10, th = 0.1)
+otu.cor <-rcorr(as.matrix(fungal_otu_top_50), type="pearson")
+otu.pval <- forceSymmetric(otu.cor$P)
+rownames(fungal_taxa_trim) = fungal_taxa_trim$OTU_ID
+sel.tax <- fungal_taxa_trim[rownames(otu.pval),,drop=FALSE]
+all.equal(rownames(sel.tax), rownames(otu.pval))
+p.yes <- otu.pval<0.05
+r.val = otu.cor$r # select all the correlation values 
+p.yes.r <- r.val*p.yes # only select correlation values based on p-value criterion 
+p.yes.r <- abs(p.yes.r)>0.75 # output is logical vector
+p.yes.rr <- p.yes.r*r.val # use logical vector for subscripting.
+adjm <- as.matrix(p.yes.rr)
+colnames(adjm) <- as.vector(sel.tax$Family)
+rownames(adjm) <- as.vector(sel.tax$Family)
+
+
+
+net.grph=graph.adjacency(adjm,mode="undirected",weighted=TRUE,diag=FALSE)
+#edgew<-E(net.grph)$weight
+#bad.vs<-V(net.grph)[degree(net.grph) == 0] 
+#net.grph <-delete.vertices(net.grph, bad.vs)
+
+
+V(net.grph)$vertex_degree <- degree(net.grph)
+
+plot(net.grph,
+    layout=layout_with_dh(net.grph, weight.edge.lengths = edge_density(net.grph)/10000,    weight.node.dist = 10000, weight.node.edge.dist = 10000 ),
+    vertex.size=V(net.grph)$vertex_degree * 2,
+    vertex.frame.color="black",
+    edge.curved=F,
+    edge.width=2,
+    vertex.label.color="black",
+    vertex.label.family="Times New Roman",
+    vertex.label.font=5,
+    vertex.label = NA)
+
+
+
+#Number of significant correlations in the top 100 fungal taxa
+flattenCorrMatrix <- function(cormat, pmat) {
+  ut <- upper.tri(cormat)
+  data.frame(
+    row = rownames(cormat)[row(cormat)[ut]],
+    column = rownames(cormat)[col(cormat)[ut]],
+    cor  =(cormat)[ut],
+    p = pmat[ut]
+    )
+}
+
+f <- flattenCorrMatrix(otu.cor$r, otu.cor$P)
+f_p_row <- f %>%
+  dplyr::filter(p<0.05) %>%
+  dplyr::select(row, column) %>%
+  dplyr::count(row)
+
+f_p_col <- f %>%
+  dplyr::filter(p<0.05) %>%
+  dplyr::select(row, column) %>%
+  dplyr::count(column)
+
+f_p <- f %>%
+  dplyr::filter(p<0.05) 
+  
+f_p_row <- f_p %>%
+  dplyr::select(row)
+
+f_p_col <- f_p %>%
+  dplyr::select(column) %>%
+  dplyr::rename(row=column)
+
+f_p_rowcol <- dplyr::bind_rows(f_p_row, f_p_col) %>%
+  dplyr::rename(OTU_ID=row)
+  
+f_count <- f_p_rowcol %>%
+  dplyr::count(OTU_ID) %>%
+  dplyr::arrange(desc(n)) %>%
+  dplyr::left_join(sel.tax)
+
+```
+
 
 ```{r indicator species}
 new.data <-cbind(meta,otu.2.rel)
@@ -176,12 +581,13 @@ new.data <-cbind(meta,otu.2.rel)
 head(new.data)
 #new.data<- new.data %>% unite(ts, c("treatment", "source"))
 design.type <- new.data$treatment
-dataREL.2013 <- new.data[,-c(1:24)]
+#levels(design.type) = c("M","MF")
+dataREL.2013 <- new.data[,-c(1:26)]
 head(dataREL.2013)
 set.seed(42)
 dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
 bac.ind <- indval(dataREL, clustering =  design.type, numitr=1000, set.seed(42))
-levels(design.type) = c("M","MF")
+
 design.type
 summary(bac.ind)
 
@@ -219,105 +625,7 @@ write.table(indicator.bac, "../figures/WRC18_Rhizo/BacterialIndicators_bac_treat
   
 ```
 
-```{r PCoA Plot based on Taxa/Otus}
-rownames(meta)<-meta$sample
-all.equal(rownames(meta), rownames(otu.2.rel))
-# Set treatments
-treat1 <- as.factor(meta$source)
-levels(treat1) <- ordered(c("bulk","grass", "forb"))
-treat2 <- as.factor(meta$treatment)
-#levels(treat2) <- c("M", "MF")
-
-pcoa.groups <- paste(meta$source, meta$treatment, sep = "_")
-pcoa.points <- data.frame(otu.2.rel.dist.pcoa$points, group = pcoa.groups)
-
-# Calculate Centroids (mean and SE)
-pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
-pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
-pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
-pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
-
-# Combine
-pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
-colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
-pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
-
-pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # treatment
-pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # source
-
-levels(pcoa.col) <- c("Unfertilized","Fertilized")
-
-#Run envfit to see which soil varibales are predicators 
-#These are just the environmental parameters have values for bulk and rhizospehre soils
-##fit<-envfit(otu.2.rel.dist.pcoa$points, meta[,-c(1:23)], perm=1000, na.rm=T, set.seed=42)
-##fit
-
-##A <-as.list(fit$vectors)
-##vec<-as.data.frame(fit$vectors$arrows*sqrt(fit$vectors$r)*0.35)
-##p<- as.data.frame(A$pvals)
-##vec <- cbind(vec, p) 
-##vec <-  subset(vec, A$pvals<=0.05)
-
-##vec$parm<-rownames(vec)
-##colnames(vec)
-#vec$parm<-c("Moisture","pH","C%","N%")
-
-#plot PCoA
-df1a <- as.data.frame(pcoa.cent.dataframe)
-plot1 <- ggplot(df1a, aes(x=V1, y=V2), group = interaction(pcoa.col, pcoa.shape)) + 
-  theme_bw() +
-#group = interaction(pcoa.col, pcoa.shape), colour=pcoa.col2))
-  geom_point(aes(shape = pcoa.shape, colour = pcoa.col), size=10, stroke = 2) + 
-  #geom_point(aes(colour=pcoa.col2), size =4.0)+
-  #removes gridlines from plot
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-               axis.line = element_line(colour = "black"))+ 
-  #Plot soil property vectors from envfit
-  ##geom_segment(data=vec, aes(x=0,xend=Dim1,y=0,yend=Dim2), size=1, 
-  ##   arrow = arrow(length = unit(0.2, "cm")),colour="black",inherit.aes=F)+ 
-  #Label soil vectors. Using annotate because I can't figure out how to move segment text
-  #Note when re-run should double check envfit stats to make sure that soil parameters are the same
-  ##geom_text(data=vec,aes(x=Dim1,y=Dim2,label=vec$parm),size=5, inherit.aes=F)+
-  #annotate("text",x=-0.02,y=0.2, label="C%") +
-  #annotate("text",x=0.02,y=0.2, label="N%") +
-  #annotate("text",x=0,y=-.2, label="moisture") +
-  #annotate("text",x=0.1,y=-.225, label="pH") +
-  #Set error bacrs for geom_point+ 
-geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0), colour="black") +
-  #Set colors for treatments
-  #scale_colour_manual(values = c("#999999", "#000000")) +
-  scale_colour_manual(values = c("gray", "darkgreen","purple","red","yellow","blue","gray","pink","magenta")) +
-  #Would have liked to set shapes but couldn't get this to work
-  scale_shape_manual(values = c(16,22,15)) +
-  #Sets map coordinates
-  coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.2, 0.2)) +
-  #Sets axis text and put border around plot
-  theme(axis.title = element_text(size=24),# face="bold"), 
-        axis.text.x = element_text(size=24, color="black"),  axis.text.y = element_text(size=24, color="black"),
-        panel.border = element_rect(colour = "black", size=1.25)) +
-  #Set plot title textsize
-  theme(plot.title=element_text(size=24)) +
-  #Set legend text size
-  theme(legend.text=element_text(size=24, face="bold"), legend.title = element_text(size=24, face="bold"))+
-  #Sets size of tick marks on axis
-  theme(axis.ticks.length=unit(0.3,"cm")) + 
-  #Sets labels for plot title, axis titles, and legend headings
-  xlab("PCoA 1 (29.1%)") + ylab("PCoA 2 (12.2%)") + 
-  labs(shape = "Soil Source") +
-  labs(colour="Treatment") +
-  ggtitle("16S rRNA V4 Taxonomic Composition")+
-  theme(legend.position="none")+
-  theme(rect = element_rect(fill = "transparent")) +
-  theme(plot.background = element_rect(color=NA))
-  
-plot1 
-
-#Save a copy of the plot
-ggsave("../figures/WRC18_Rhizo/16SrRNA_WRC2018Rhizo.png", plot=plot1, device=NULL, path=NULL, scale=1, width=7.5, height=6, dpi=900, limitsize=TRUE, bg="transparent")
-
-```
-
-```{r Presence_Absence and Species richness, include =FALSE }
+```{r Bac Presence_Absence and Species richness, include =FALSE }
 #Transform data to reflect only presence or absence ie 0 or 1
 otu.2.PA<-(otu.rare>0*1)
 #sanity check 
@@ -331,7 +639,7 @@ metaotu.2[,cols]<-lapply(metaotu.2[,cols],as.numeric)
 #head(metaotu.2)
 ```
 
-```{r diversity metrics: richness}
+```{r bac diversity metrics: richness}
 #chao1 richness index
 chao1 <- estimateR(otu.2)
 c <- as.data.frame(chao1)
@@ -378,7 +686,9 @@ theme(axis.title=element_text(size=24),
           
 chao
 #Save a copy of the plot
-ggsave("../figures/WRC18_Rhizo/chao1.png", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE,bg="transparent")
+ggsave("../figures/WRC18_Rhizo/chao1.jpg", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE,bg="transparent")
+
+ggsave("../figures/WRC18_Rhizo/chao1.pdf", plot=chao, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE,bg="transparent")
 
 
 ```
@@ -437,7 +747,9 @@ theme(axis.title=element_text(size=24),
 
 shan
 
-ggsave("../figures/WRC18_Rhizo/shannon.png", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE, bg="transparent")
+ggsave("../figures/WRC18_Rhizo/pub/shannon.png", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE, bg="transparent")
+
+ggsave("../figures/WRC18_Rhizo/pub/shannon.pdf", plot=shan, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE, bg="transparent")
 ```
 
 ```{r diversity metrics - Pielous evennes J}
@@ -475,6 +787,20 @@ even
 ggsave("../figures/WRC18_Rhizo/even.jpg", plot=even, device=NULL, path=NULL, scale=1, width=6.3, height=4.4, dpi=900, limitsize=TRUE)
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #This section is IN-PROGRESS Bear ?? .???.?? with me :)
 ```{r environmental parameters}
 meta.env <- meta 
@@ -2411,6 +2737,8 @@ mantel.rtest(otu.dist, eco.dist, nrepet = 999)
 mantel.rtest(otu.dist, nitro.dist, nrepet = 999)
 mantel.rtest(otu.dist, po4.dist, nrepet = 999)
 mantel.rtest(otu.dist, sulfur.dist, nrepet = 999)
+
+mantel.rtest(fungal_otu.rel.dist, otu.2.rel.dist, nrepet=999)
 
 mantel.rtest(eco.dist, nitro.dist, nrepet = 999)
 mantel.rtest(po4.dist, nitro.dist, nrepet = 999)

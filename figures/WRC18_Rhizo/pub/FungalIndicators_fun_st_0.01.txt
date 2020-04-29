@@ -1,0 +1,25 @@
+OTU_ID	Cluster	IndVal	Prob	domain	phylum	class	order	family	genus	species
+OTU3	1	0.302270511213261	0.003	Fungi	Ascomycota	Eurotiomycetes	Eurotiales	Aspergillaceae	Penicillium	
+OTU23	1	0.942982456140351	0.004	Fungi						
+OTU109	1	0.9	0.002	Fungi	Ascomycota					
+OTU354	1	0.628318584070796	0.001	Fungi	Ascomycota					
+OTU178	1	0.656028368794326	0.003	Fungi	Ascomycota					
+OTU153	1	0.867469879518072	0.004	Fungi	Ascomycota					
+OTU177	1	0.772058823529412	0.009	Fungi	Ascomycota	Orbiliomycetes	Orbiliales			
+OTU159	1	0.884057971014493	0.001	Fungi	Ascomycota					
+OTU1181	1	0.5	0.003	Fungi						
+OTU2120	1	0.455	0.003	Fungi						
+OTU424	1	0.855421686746988	0.001	Fungi	Ascomycota					
+OTU25	3	0.453704944392336	0.009	Fungi	Ascomycota					
+OTU46	3	0.481802426343154	0.006	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Ophiocordycipitaceae	Tolypocladium	
+OTU327	3	0.583756345177665	0.001	Fungi	Ascomycota	Leotiomycetes	Helotiales			
+OTU62	4	0.485884101040119	0.004	Fungi	Basidiomycota	Tremellomycetes	Filobasidiales	Piskurozymaceae	Solicoccozyma	Solicoccozyma terricola
+OTU148	4	0.430555555555556	0.006	Fungi	Ascomycota					
+OTU191	4	0.660427807486631	0.002	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Hypocreales fam Incertae sedis	Myxocephala	Myxocephala albida
+OTU200	4	0.552884615384615	0.002	Fungi	Chytridiomycota	Rhizophydiomycetes	Rhizophydiales	Terramycetaceae	 	 
+OTU353	4	0.629441624365482	0.008	Fungi	Basidiomycota	Agaricomycetes	Auriculariales	 	 	 
+OTU213	5	0.5372460496614	0.004	Fungi	Ascomycota	Dothideomycetes	Pleosporales			
+OTU314	5	0.712707182320442	0.007	Fungi	Basidiomycota	Agaricomycetes	Trechisporales	Hydnodontaceae	Trechispora	
+OTU77	6	0.735145385587863	0.01	Fungi	Basidiomycota	Agaricomycetes	Agaricales			
+OTU42	6	0.963800904977376	0.007	Fungi	Ascomycota	Sordariomycetes	Hypocreales	Nectriaceae		
+OTU492	6	0.716666666666667	0.004	Fungi	Ascomycota	Dothideomycetes	Pleosporales			
