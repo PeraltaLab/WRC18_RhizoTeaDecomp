@@ -3,22 +3,25 @@
 
 This study was conducted at the long-term fertilization and mowing experiment at West Research Campus, East Carolina University.
 
-This repository contains open-source code, data, & text files for 
+This repository contains open-source code, data, & text files.
 
-For information regarding the project, please visit: [update with publication information]
+For information regarding the project, please visit: Koceja, M.E.*, R.B. Bledsoe§, C. Goodwillie, and A.L. Peralta (In review). Nutrient enrichment increases soil bacterial diversity and decomposition rates of different litter types in a coastal plain wetland. [biorxiv pre-print](https://doi.org/10.1101/732883)
+
+Raw sequence files can be found at NCBI SRA BioProject ID .
+
 
 ## We address the following questions
 
-* **Aim 1.)**: How does long-term fertilization and disturbance (by mowing) and litter quality influence litter-associated microbiomes and decomposition rates?
+* **Aim 1.)**: How does long-term fertilization and disturbance (by mowing) and litter chemical quality influence litter-associated microbiomes and decomposition rates?
 
 * **Aim 2.)**: What are the specific bacterial taxa associated with decomposition of high vs. low C:N ratio litter types? 
 
 ### Repo Contents
 
-* **analyses:**: An R Markdown file that includes R script written by Ariane Peralta and Regina Bledsoe containing functions used in analysis of soil and microbial sequence data.
+* **analyses:**: An R Markdown file (2018_WRC_SoilTeaDecomp.Rmd) that includes R script written by Ariane Peralta and Regina Bledsoe containing functions used in analysis of soil and microbial sequence data.
 
 * **bin:** 
-	* *MothurTools.R*: An R script written by Mario Muscarella (University of Illinois, now at Université du Quebéc à Montréal) containing functions used in the analysis of community sequence data.
+	* *MothurTools.R*: An R script written by Mario Muscarella (currently at Université du Quebéc à Montréal, soon to be Assistant Professor, University of Alaska-Fairbanks) containing functions used in the analysis of community sequence data.
 
 * **data:**: Files associated with soil and microbial data sets. 
 
@@ -29,7 +32,7 @@ For information regarding the project, please visit: [update with publication in
 ## Contributors
 Megan E. Koceja: Undergraduate Research Assistant, Department of Biology, East Carolina University.
 
-[Regina Bledsoe](https://ginabbledsoe.wixsite.com/microbes): PhD Candidate, Department of Biology, East Carolina University.
+[Dr. Regina Bledsoe](https://ginabbledsoe.wixsite.com/microbes): PhD Candidate, Department of Biology, East Carolina University.
 
 [Dr. Carol Goodwillie](https://www.goodwillielab.com/): Co-Principal Investigator, Assistant Professor, Department of Biology, East Carolina University.
 
