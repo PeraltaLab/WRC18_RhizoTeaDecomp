@@ -32,7 +32,7 @@ Raw sequence files can be found at NCBI SRA BioProject ID .
 ## Contributors
 Megan E. Koceja: Undergraduate Research Assistant, Department of Biology, East Carolina University.
 
-[Dr. Regina Bledsoe](https://ginabbledsoe.wixsite.com/microbes): PhD Candidate, Department of Biology, East Carolina University.
+[Dr. Regina Bledsoe](https://ginabbledsoe.wixsite.com/microbes): Principal Investigator, PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
 
 [Dr. Carol Goodwillie](https://www.goodwillielab.com/): Co-Principal Investigator, Assistant Professor, Department of Biology, East Carolina University.
 
