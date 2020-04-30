@@ -26,7 +26,7 @@ ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
 # Code Dependencies
 source("../bin/DiversityFunctions.R")
 source("../bin/MothurTools.R")
-require("vegan"); require("nlme"); require("reshape"); require("ggplot2")
+require("vegan"); require("lme4"); require("reshape"); require("ggplot2")
 require("ade4"); require("png"); require ("agricolae"); require("tidyr")
 require("dplyr"); require("reshape2"); require("picante"); require("phyloseq")
 ```
@@ -88,6 +88,7 @@ for(i in 1:dim(otus.t)[1]){
 # Simple Hypothesis Testing - Microbial Community (tea only)
 ```{r perMANOVA - Bacteria - All Yrs, echo=TRUE}
 #PERMANOVA
+design.t$ditch <- as.factor(design.t$ditch)
 new.data.t <-cbind(design.t,dataREL.t)
 adonis = adonis(new.data.t[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data.t, perm=1000)
 adonis
@@ -165,20 +166,20 @@ pcoa.cent.dataframe.trts$source <- as.factor(source.ditch.t)
 #Plot
 df1a <- as.data.frame(pcoa.cent.dataframe.trts)
 plot1a <- ggplot(df1a, aes(x=V1, y=V2, colour=trt, shape = source,
-                           group = interaction(trt, source))) + theme_bw() 
+                           group = interaction(trt,source))) + theme_bw() 
 plot1a + theme(panel.grid.major = element_blank(), 
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
-geom_point(aes(colour=trt.t), size=5, stroke = 1.25, show.legend = TRUE) +
+geom_point(aes(colour=trt), size=5, stroke = 1.25, show.legend = TRUE) +
 geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
-scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
+scale_colour_manual(labels = c("unfertilized","fertilized"), 
                     values = c("gray70", "darkgreen")) + 
-scale_shape_manual(labels = c("green_tea (wet_0ditch)", 
-                              "green_tea (dry_1ditch)", 
-                              "rooibos_tea (wet_0ditch)",
-                              "rooibos_tea (dry_1ditch)"), 
-                   values = c(16,21,17,24)) +
+scale_shape_manual(labels = c("green_tea (dry_1ditch)", 
+                              "green_tea (wet_0ditch)", 
+                              "rooibos_tea (dry_1ditch)",
+                              "rooibos_tea (wet_0ditch)"), 
+                   values = c(21,16,24,17)) +
 theme(axis.title = element_text(size=14), axis.text = element_text(size=14),
       axis.text.x = element_text(size=14), 
       panel.border = element_rect(colour = "black", size = 1.25)) + 
@@ -187,7 +188,7 @@ xlab("PCoA 1 (22.2%)") + ylab("PCoA 2 (10.1%)") +
   labs(colour = "Treatment", shape = "Source + Ditch") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
          shape = guide_legend(override.aes = list(size = 4)))
-ggsave("../figures/Ordination_tea.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/Ordination_tea.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 #Loading data file
@@ -203,11 +204,11 @@ dim(TBI)
 TBI$trt <- as.factor(TBI$Treatment)
 TBI$ditch <- as.factor(TBI$Ditch)
 
-p <- ggplot(TBI, aes(x=S, y=k, color=trt, shape=ditch))+ scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("mowed", "mowed/fertilized")) + geom_point(size=5) + scale_shape_manual(name="Ditch", values = c(16,21), labels = c("wet_0ditch","dry_1ditch"))
+p <- ggplot(TBI, aes(x=S, y=k, color=trt, shape=ditch))+ scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("unfertilized", "fertilized")) + geom_point(size=5) + scale_shape_manual(name="Ditch", values = c(16,21), labels = c("wet_0ditch","dry_1ditch"))
 p1=p+geom_point()
 TBI <- p1 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +theme(axis.title=element_text(vjust=1,size=18), axis.text=element_text(size=18), axis.text.x = element_text(vjust=0.65, hjust=0.5, size=18), panel.border = element_rect(colour = "black",size=1)) + theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Stabilization factor (S)", y = "Decomposition rate (k)") + theme(strip.text.x = element_text(size=18, face="bold"), strip.text.y = element_text(size=18, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1))
 TBI
-ggsave("../figures/TBI.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/TBI.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 # Tea Decomp Biomass
@@ -237,7 +238,7 @@ write.csv(summary,"../data/massloss.summary.csv")
 ditch.labs <- c("wet_0ditch","dry_1ditch") #for facet labels
 names(ditch.labs) <- c("0", "1")
 
-p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
+p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -250,13 +251,13 @@ p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))
-ggsave("../figures/PercentLoss_pointCI.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/PercentLoss_pointCI.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 
 #boxplots
 p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment))) + geom_boxplot() +
       geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) +   
-      scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", 
-      "mowed/fertilized")) 
+      scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", 
+      "fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -270,7 +271,7 @@ p1 + theme_bw() +
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))
 
-ggsave("../figures/PercentLoss_boxplots.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/PercentLoss_boxplots.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 ## Bacterial Data - including bulk and tea
@@ -396,7 +397,7 @@ names(ditch.labs) <- c("0", "1")
 
 # Graphing Shannon Diversity
 p <- ggplot(diversity, aes(x=source, y=shannon, color=as.factor(treatment)))+ geom_boxplot() +
-      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) 
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 shannon<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -411,13 +412,13 @@ shannon<-p1 + theme_bw() +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
 shannon
-#ggsave("../figures/shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+#ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 #Plot richness 
 ```{r Plot - OTU richness, echo=TRUE}
 # Graphing Richness
 p <- ggplot(diversity, aes(x=source, y=richness, color=as.factor(treatment)))+ geom_boxplot() +
-      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) 
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 richness<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -432,14 +433,14 @@ richness<-p1 + theme_bw() +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
 richness
-#ggsave("../figures/richness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+#ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/richness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 #Plot Simpson's Evenness
 ```{r Plot Simpson's Evenness, echo=TRUE}
 # Graphing Simpson's Evenness
 p <- ggplot(diversity, aes(x=source, y=simp.even, color=as.factor(treatment)))+ geom_boxplot() +
-      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed", "mowed/fertilized")) 
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 even<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -454,7 +455,7 @@ even<-p1 + theme_bw() +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
           "rooibos"))
 even 
-#ggsave("../figures/evenness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+#ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/evenness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 #combine alpha diversity graphs
 ```{r Loading Files, include=FALSE}
@@ -472,7 +473,7 @@ plots <- align_plots(n1,n2,n3, align = 'v', axis = 'l')
 n4 <- plot_grid(plots[[1]],plots[[2]],plots[[3]], labels = c("A","B","C"), label_size = 16, ncol=1, align='v')
 n4 
 
-ggsave("../figures/alpha_diversity.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1,  width=8, height=15, dpi=300, limitsize=TRUE)
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/alpha_diversity.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1,  width=8, height=15, dpi=300, limitsize=TRUE)
 ```
 # Simple Hypothesis Testing - Microbes
 ```{r perMANOVA - Bacteria - All sources, echo=TRUE}
@@ -530,15 +531,15 @@ plot2a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
 geom_point(aes(colour=trt.t.s), size=5, stroke = 1.25, show.legend = TRUE) +
 geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") + geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
-scale_colour_manual(labels = c("mowed","mowed/fertilized"), 
+scale_colour_manual(labels = c("unfertilized","fertilized"), 
                     values = c("gray70", "darkgreen")) + 
-scale_shape_manual(labels = c("bulk_soil (wet_0ditch)", 
-                              "bulk_soil (dry_1ditch)",
-                              "green_tea (wet_0ditch)", 
+scale_shape_manual(labels = c("bulk_soil (dry_1ditch)", 
+                              "bulk_soil (wet_0ditch)",
                               "green_tea (dry_1ditch)", 
-                              "rooibos_tea (wet_0ditch)",
-                              "rooibos_tea (dry_1ditch)"), 
-                   values = c(15,22,16,21,17,24)) +
+                              "green_tea (wet_0ditch)", 
+                              "rooibos_tea (dry_1ditch)",
+                              "rooibos_tea (wet_0ditch)"), 
+                   values = c(22,15,21,16,24,17)) +
 theme(axis.title = element_text(size=14), axis.text = element_text(size=14),
       axis.text.x = element_text(size=14), 
       panel.border = element_rect(colour = "black", size = 1.25)) + 
@@ -547,7 +548,7 @@ xlab("PCoA 1 (43.3%)") + ylab("PCoA 2 (10.6%)") +
   labs(colour = "Treatment", shape = "Source + Ditch") +
   guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
          shape = guide_legend(override.aes = list(size = 4)))
-ggsave("../figures/Ordination_bulk_tea.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/Ordination_bulk_tea.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 # Bacterial community indicator species
@@ -653,11 +654,11 @@ wrc_phylum_means <- wrc_phylum %>%
   group_by(source, Phylum) %>%
   summarise_at(c("Abundance"), mean, na.rm=TRUE)
 
-write.csv(wrc_phylum, file="../figures/phylum_composition.csv", row.names=TRUE)
+write.csv(wrc_phylum, file="../figures/figs_2018_WRC_SoilTeaDecomp/phylum_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/phylum_stack.pdf", width=9, height=9, dpi=300)
-
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/phylum_stack.pdf", width=9, height=9, dpi=300)
 ```
+
 ```{r phyloseq Class stacked graphs of taxa composition}
 # melt to long format (for ggploting) 
 # prune out phyla below 2% in each sample
@@ -699,9 +700,9 @@ wrc_class_means <- wrc_class %>%
   group_by(source, Class) %>%
   summarise_at(c("Abundance"), mean, na.rm=TRUE)
 
-write.csv(wrc_class_means, file="../figures/class_composition.csv", row.names=TRUE)
+write.csv(wrc_class_means, file="../figures/figs_2018_WRC_SoilTeaDecomp/class_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/class_stack.pdf", width=9, height=9, dpi=300)
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/class_stack.pdf", width=9, height=9, dpi=300)
 
 ```
 
@@ -748,12 +749,12 @@ wrc_family_means <- wrc_family %>%
   group_by(source, Family) %>%
   summarise_at(c("Abundance"), mean, na.rm=TRUE)
 
-write.csv(wrc_family_means, file="../figures/alpha_composition.csv", row.names=TRUE)
+write.csv(wrc_family_means, file="../figures/figs_2018_WRC_SoilTeaDecomp/alpha_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/alpha_family_stack.pdf", width=15, height=9, dpi=300)
-
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/alpha_family_stack.pdf", width=15, height=9, dpi=300)
 ```
-```{r phyloseq Family - Deltaproteobacteria  stacked graphs of taxa composition}
+
+```{r phyloseq Family - Deltaproteobacteria stacked graphs of taxa composition}
 # melt to long format (for ggploting) 
 # prune out phyla below 1% in each sample
 wrc_family <- meta_merge %>%
@@ -795,12 +796,10 @@ wrc_family_means <- wrc_family %>%
   group_by(source, Family) %>%
   summarise_at(c("Abundance"), mean, na.rm=TRUE)
 
-write.csv(wrc_family_means, file="../figures/delta_composition.csv", row.names=TRUE)
+write.csv(wrc_family_means, file="../figures/figs_2018_WRC_SoilTeaDecomp/delta_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/delta_family_stack.pdf", width=15, height=9, dpi=300)
-
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/delta_family_stack.pdf", width=15, height=9, dpi=300)
 ```
-
 
 ```{r phyloseq Family - Gammaproteobacteria  stacked graphs of taxa composition}
 # prune out phyla below 1% in each sample
@@ -835,9 +834,9 @@ wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="../figures/gamma_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/figs_2018_WRC_SoilTeaDecomp/gamma_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/gamma_family_stack.pdf", width=15, height=9, dpi=300)
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/gamma_family_stack.pdf", width=15, height=9, dpi=300)
 ```
 
 
@@ -874,9 +873,9 @@ wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="../figures/beta_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/figs_2018_WRC_SoilTeaDecomp/beta_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/beta_family_stack.pdf", width=15, height=9, dpi=300)
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/beta_family_stack.pdf", width=15, height=9, dpi=300)
 ```
 
 ```{r phyloseq Family - Actinobacteria  stacked graphs of taxa composition}
@@ -912,10 +911,9 @@ wrc_plot<- ggplot(wrc_family, aes(x = Family, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="../figures/actino_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/figs_2018_WRC_SoilTeaDecomp/actino_composition.csv", row.names=TRUE)
 
-
-ggsave(file="../figures/actino_family_stack.pdf", width=15, height=9, dpi=300)
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/actino_family_stack.pdf", width=15, height=9, dpi=300)
 ```
 
 ```{r phyloseq Family - Rhodospirillaceae genus stacked graphs of taxa composition}
@@ -951,14 +949,15 @@ wrc_plot<- ggplot(wrc_family, aes(x = Genus, y = Abundance, fill = i)) +
 
 wrc_plot + coord_flip() 
 
-write.csv(wrc_family, file="../figures/rhodo_composition.csv", row.names=TRUE)
+write.csv(wrc_family, file="../figures/figs_2018_WRC_SoilTeaDecomp/rhodo_composition.csv", row.names=TRUE)
 
-ggsave(file="../figures/rhodo_family_stack.pdf", width=15, height=9, dpi=300)
+ggsave(file="../figures/figs_2018_WRC_SoilTeaDecomp/rhodo_family_stack.pdf", width=15, height=9, dpi=300)
 ```
 
 ```{r soil properties}
 #Read in design file
 meta.env <- design
+meta.env$ditch <- as.factor(meta.env$ditch)
 
 #bulk soils, M, MF
 by_treatment <- meta.env %>%
@@ -977,40 +976,58 @@ by_treatment_ditch <- meta.env %>%
                  "p_po4_w_ug_gsoil"), funs(mean,sd), na.rm = TRUE)
 write.csv(t(by_treatment_ditch), file = "../data/soil_properties_trt_ditch.csv",row.names=TRUE)
 
-###re-ran glmms - majoritty of original model var ~ ~ treatment*ditch+(1|ditch) did not converge; removed ditch effect as it did not have signif effects - except p_hcl
+library("lmerTest")
+library("pbkrtest")
 
-temp.lm <- lmer(temp_degC ~ treatment+(1|ditch), meta.env) 
+temp.lm <- lmer(temp_degC ~ treatment*ditch + (1|block), data = meta.env)
+plot(temp.lm)
 anova(temp.lm, type="II", ddf="Kenward-Roger")
+#confint(temp.lm)
 
-nh4.lm <- lmer(n_nh4_ug_gsoil ~ treatment+(1|ditch), meta.env) 
-#not singular, random effect not estimated
-anova(nh4.lm, type="II", ddf="Kenward-Roger") 
+nh4.lm <- lmer(n_nh4_ug_gsoil ~ treatment*ditch + (1|block), data = meta.env)
+plot(nh4.lm)
+anova(nh4.lm, type="II", ddf="Kenward-Roger")
+#confint(nh4.lm)
 
-no3.lm <- lmer(n_no3_ug_gsoil ~ treatment+(1|ditch), meta.env) 
+no3.lm <- lmer(n_no3_ug_gsoil ~ treatment*ditch + (1|block), data = meta.env)
+plot(no3.lm)
 anova(no3.lm, type="II", ddf="Kenward-Roger")
+#confint(no3.lm)
 
-pH.lm <- lmer(pH ~ treatment+(1|ditch), meta.env) 
+pH.lm <- lmer(pH ~ treatment*ditch + (1|block), data = meta.env)
+plot(pH.lm)
 anova(pH.lm, type="II", ddf="Kenward-Roger")
+#confint(pH.lm)
 
-soilC.lm <- lmer(c_percent ~ treatment+(1|ditch), meta.env) 
+soilC.lm <- lmer(c_percent ~ treatment*ditch + (1|block), data = meta.env)
+plot(soilC.lm)
 anova(soilC.lm, type="II", ddf="Kenward-Roger")
+#confint(soilC.lm)
 
-soilN.lm <- lmer(n_percent ~ treatment+(1|ditch), meta.env) 
+soilN.lm <- lmer(n_percent ~ treatment*ditch + (1|block), data = meta.env)
+plot(soilN.lm)
 anova(soilN.lm, type="II", ddf="Kenward-Roger")
+#confint(soilN.lm)
 
-CN.lm <- lmer(C_N ~ treatment+(1|ditch), meta.env) 
+CN.lm <- lmer(C_N ~ treatment*ditch + (1|block), data = meta.env)
+plot(CN.lm)
 anova(CN.lm, type="II", ddf="Kenward-Roger")
+#confint(CN.lm)
 
-p_hcl.lm <- lmer(p_po4_hcl_ug_gsoil ~ treatment+(1|ditch), meta.env) 
-#not singular, random effect not estimated
+p_hcl.lm <- lmer(p_po4_hcl_ug_gsoil ~ treatment*ditch + (1|block), data = meta.env)
+plot(p_hcl.lm)
 anova(p_hcl.lm, type="II", ddf="Kenward-Roger")
+#confint(p_hcl.lm)
 
-p_h2o.lm <- lmer(p_po4_w_ug_gsoil ~ treatment+(1|ditch), meta.env) 
+p_h2o.lm <- lmer(p_po4_w_ug_gsoil ~ treatment*ditch + (1|block), data = meta.env)
+plot(p_h2o.lm)
 anova(p_h2o.lm, type="II", ddf="Kenward-Roger")
+#confint(p_h2o.lm)
 
-
-moisture.lm <- lmer(moisture ~ treatment+(1|ditch), meta.env) 
+moisture.lm <- lmer(moisture ~ treatment*ditch + (1|block), data = meta.env)
+plot(moisture.lm)
 anova(moisture.lm, type="II", ddf="Kenward-Roger")
+#confint(moisture.lm)
 
 
 nh4 <- aov(meta.env$n_nh4_ug_gsoil ~ treatment, meta.env)
