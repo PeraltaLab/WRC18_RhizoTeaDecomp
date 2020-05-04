@@ -34,8 +34,8 @@ This work was supported by the East Carolina University Undergraduate Research a
 ## Contributors
 Megan E. Koceja: Undergraduate Research Assistant, Department of Biology, East Carolina University.
 
-[Dr. Regina Bledsoe](https://ginabbledsoe.wixsite.com/microbes): Principal Investigator, PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
+[Dr. Regina Bledsoe](mailto:ginabbledsoe@gmail.com) [(website)](https://ginabbledsoe.wixsite.com/microbes): Co-Principal Investigator, PhD Student in the [Peralta Lab](http://www.peraltalab.com) at East Carolina University
 
-[Dr. Carol Goodwillie](https://www.goodwillielab.com/): Co-Principal Investigator, Assistant Professor, Department of Biology, East Carolina University.
+[Dr. Carol Goodwillie](mailto:goodwilliec@ecu.edu) [(website)](https://www.goodwillielab.com/): Co-Principal Investigator, Assistant Professor, Department of Biology, East Carolina University.
 
-[Dr. Ariane Peralta](https://www.peraltalab.com): Principal Investigator, Assistant Professor, Department of Biology, East Carolina University. 
+[Dr. Ariane Peralta](mailto:peraltaa@ecu.edu) [(website)](http://www.peraltalab.com): Principal Investigator, Assistant Professor, Department of Biology, East Carolina University. 
