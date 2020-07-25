@@ -49,9 +49,11 @@ dim(otu)
 otu <- otu[match(rownames(design), rownames(otu)),]
 all.equal(rownames(otu), rownames(design))
 
-# OTU table - remove otus w/ < 2 occurrences across all sites
-otu_removal <- otu[, which(colSums(otu) >= 2)]
-dim(otu_removal)
+# OTU table - remove otus w/ < 2 occurrences across all sites ### FIX
+#otu_removal <- otu[, which(colSums(otu) >= 2)]
+#dim(otu_removal)
+
+otus <- otu[, which(colSums(otu) >= 2)]
 
 aa <- (rowSums(otu_removal))
 aa # WRC18_10_Tea-155 reads WRC18_13_Tea-29 reads - removed
