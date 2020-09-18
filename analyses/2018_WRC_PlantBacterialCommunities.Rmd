@@ -67,6 +67,15 @@ for(i in 1:dim(otus)[1]){
 otu.tax <- read.tax(taxonomy = "../data/WRC18_opti_mcc.0.03.cons.taxonomy",
                    format = "rdp", tax.levels = 6, col.tax = 3)
 ```
+
+## Subset for Rhizo
+```{r}
+rhizo <- otu.tax$OTU[which(otu.tax$Order == "Rhizobiales")]
+
+rhizo.otu <- otu[, which(colnames(otu) %in% rhizo)]
+rhizo.tax <- otu.tax[which(otu.tax$OTU %in% rhizo), ]
+```
+
 # Diversity Metrics - Hypothesis Testing
 ```{r Diversity Metrics - Bacteria, echo=TRUE}
 # Rarefy Abundances (min abundance is 29392. We are sampling to 29000)
