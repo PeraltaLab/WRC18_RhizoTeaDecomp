@@ -137,7 +137,7 @@ sum.eigb <- sum(explainvar1b, explainvar2b)
 explainvar1b #34.3
 explainvar2b #18.8
 ```
-```{r Ordination (PCoA) - Bacteria, include=FALSE}
+```{r Ordination (PCoA) - fungi, include=FALSE}
 # Principal Coordinates Analysis - even blocks only, mowed only, bulk only
 
 pcoa.groups <- paste(fun_metaotu$treatment)
@@ -232,7 +232,7 @@ f_chao
 ggsave("../figures/2018.bacteria.chao1.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
-```{r diversity metrics - calculate diversity and evenness}
+```{r diversity metrics - fun calculate diversity and evenness}
 # Calculate diversity metrics
 fun.shannon <- vegan::diversity(fungal_otu, "shannon")
 fun.simp <- vegan::diversity(fungal_otu, "simpson")
@@ -247,7 +247,7 @@ meta$fun.simp <- fun.invsimp
 meta$fun.invsimp <- fun.J
 ```
 
-```{r diversity metrics - display shannon }
+```{r diversity metrics - fungal display shannon }
 #Run richness first. interaction, levels, and treatments for plotting set there
 fun.shannon.lm <- aov(fun.shannon ~ treatment, data = meta)
 plot(fun.shannon.lm)
@@ -303,9 +303,7 @@ simp.even <- apply(PCC.2018a, 1, simp_even)
 J <- shannon/log(specnumber(PCC.2018a[,-c(1:1)]))
 
 #combined richness, diversity, evenness
-diversity.plant <- cbind(design.2018,richness,shannon,simp.even,J)
-diversity.plant.even <- diversity.plant %>%
-  filter(block=='2'|block=='4'|block=='6'|block=='8')
+diversity.plant.even <- cbind(meta,richness,shannon,simp.even,J)
 
 #Adding diversity fields to dataset
 meta$plant.shannon <- diversity.plant.even$shannon
@@ -349,7 +347,7 @@ adonis = adonis(PCC.2018[,-c(1:3,87)]~treatment, method = "bray", data = PCC.201
 adonis
 ```
 # Plant Ordinations
-```{r Ordination (PCoA) - Bacteria - bulk and teas, include=FALSE}
+```{r Ordination (PCoA) - plant, include=FALSE}
 # Principal Coordinates Analysis
 dataREL.dist <- vegdist(PCC.2018[,-c(1:3,87)], method="bray")
 
@@ -365,7 +363,7 @@ explainvar1b #54.3
 explainvar2b #23.2
 ```
 
-```{r Ordination (PCoA) - Bacteria, include=FALSE}
+```{r Ordination (PCoA) - plant plot, include=FALSE}
 # Principal Coordinates Analysis - plants
 pcoa.groups <- paste(PCC.2018$treatment)
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
@@ -498,7 +496,7 @@ metaotu <- cbind(meta, otu.2.rel)
 
 #PERMANOVA with source and treatment as factors
 #Among all treatments source (soil source) and treatment
-metaotu.ad <- adonis(metaotu[,-c(1:33)] ~ treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
+metaotu.ad <- adonis(metaotu[,-c(1:36)] ~ treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
 
 metaotu.ad 
 
@@ -519,7 +517,7 @@ metaotu.2[,cols]<-lapply(metaotu.2[,cols],as.numeric)
 #head(metaotu.2)
 ```
 
-```{r diversity metrics - calculate diversity and evenness}
+```{r diversity metrics - bact calculate diversity and evenness}
 # Calculate diversity metrics
 bac.shannon <- vegan::diversity(otu.rare, "shannon")
 bac.simp <- vegan::diversity(otu.rare, "simpson")
@@ -566,11 +564,11 @@ ggsave("../figures/2018.bacteria.even.shannon.png", plot=last_plot(), device=NUL
 ```
 
 # Bacterial Ordinations
-```{r Ordination (PCoA) - Bacteria - bulk and teas, include=FALSE}
+```{r Ordination (PCoA) - Bacteria, include=FALSE}
 #metaotu.ad <- adonis(metaotu[,-c(1:33)] ~ treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
 
 # Principal Coordinates Analysis
-dataREL.dist <- vegdist(metaotu[,-c(1:33)], method="bray")
+dataREL.dist <- vegdist(metaotu[,-c(1:36)], method="bray")
 
 pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
   # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -580,11 +578,11 @@ explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
 explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
 sum.eigb <- sum(explainvar1b, explainvar2b)
 
-explainvar1b #52.4
-explainvar2b #22.4
+explainvar1b #38.1
+explainvar2b #23.3
 ```
 
-```{r Ordination (PCoA) - Bacteria, include=FALSE}
+```{r Ordination (PCoA) - Bacteria plot, include=FALSE}
 # Principal Coordinates Analysis
 pcoa.groups <- paste(metaotu$treatment)
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
@@ -620,7 +618,7 @@ plot1a + theme(panel.grid.major = element_blank(),
         axis.text.x = element_text(size=14), 
         panel.border = element_rect(colour = "black", size = 1.25)) + 
   theme(axis.ticks.length = unit(0.3, "cm")) + 
-        xlab("PCoA 1 (52.4%)") + ylab("PCoA 2 (22.4%)") +
+        xlab("PCoA 1 (38.1%)") + ylab("PCoA 2 (23.3%)") +
         labs(colour = "Treatment") +
     guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
            shape = guide_legend(override.aes = list(size = 4))) +
@@ -643,21 +641,21 @@ dist.bac.M <- vegdist(bac.2018.M[,-c(1:33)], method="bray")
 dist.bac.MF <- vegdist(bac.2018.MF[,-c(1:33)], method="bray")
 
 
-#dist.plant <- vegdist(PCC.2018[,-c(1:3,87)], method="bray")
-#dist.bac <- vegdist(metaotu[,-c(1:33)], method="bray")
+dist.plant <- vegdist(PCC.2018[,-c(1:3,87)], method="bray")
+dist.bac <- vegdist(metaotu[,-c(1:33)], method="bray")
 
 # MANTEL TESTS - even blocks only
-mantel.rtest(dist.plant, dist.bac, nrepet = 999) #all treatments and ditch included - Mantel r = 0.380, p = 0.037
-mantel.rtest(dist.plant.M, dist.bac.M, nrepet = 999) # mowed only: Mantel r = -0.637, p = 0.86
-mantel.rtest(dist.plant.MF, dist.bac.MF, nrepet = 999) # mowed/fert: Mantel r = -0.650, p = 0.95
+mantel.rtest(dist.plant, dist.bac, nrepet = 999) #all treatments and ditch included - Mantel r = 0.692, p = 0.004
+mantel.rtest(dist.plant.M, dist.bac.M, nrepet = 999) # mowed only: Mantel r = 0.286, p = 0.277
+mantel.rtest(dist.plant.MF, dist.bac.MF, nrepet = 999) # mowed/fert: Mantel r = 0.115, p = 0.367
 
 # correlation alpha diversity
 meta.M <- subset(meta, treatment == "M")
 meta.MF <- subset(meta, treatment == "MF")
 
-cor.test(meta$plant.shannon, meta$bac.shannon) # ALL: Pearsonn rho = -0.920, p = 0.0012
-cor.test(meta.M$plant.shannon, meta.M$bac.shannon) # ALL: Pearsonn rho = -0.693, p = 0.3067
-cor.test(meta.MF$plant.shannon, meta.MF$bac.shannon) # ALL: Pearsonn rho = -0.304, p = 0.6961
+cor.test(meta$plant.shannon, meta$bac.shannon) # ALL: Pearsonn rho = -0.920, p = 0.0009
+cor.test(meta.M$plant.shannon, meta.M$bac.shannon) # ALL: Pearsonn rho = -0.475, p = 0.525
+cor.test(meta.MF$plant.shannon, meta.MF$bac.shannon) # ALL: Pearsonn rho = -0.934, p = 0.065
 
 p <- ggplot(meta, aes(x=plant.shannon, y=bac.shannon, color=treatment)) +
   scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) +  
