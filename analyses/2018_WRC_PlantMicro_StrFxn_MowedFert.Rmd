@@ -19,7 +19,12 @@ Project Description: Fill out
 # Initial Setup
 ```{r Initial Setup, include=FALSE}
 rm(list=ls())
-setwd("~/GitHub/WRC18_RhizoTeaDecomp/analyses")
+#PC - set WD manually by Session -> Set Working Directory -> Choose Directory...
+if(Sys.info()[1] == "Darwin"){
+  setwd("~/GitHub/WRC18_RhizoTeaDecomp/analyses")
+} else {
+  setwd(choose.dir())
+}
 se <- function(x, ...){sd(x, na.rm = TRUE)/sqrt(length(na.omit(x)))}
 ci <- function(x, ...){1.96 * sd(x,na.rm = TRUE)}
 
@@ -41,7 +46,6 @@ require("ggpubr")
 ```
 #Import Files
 ```{r Import Files - Env, include=FALSE}
-getwd()
 #Load data files 
 #Assign file names to variables
 sharedfile = "../data/WRC18_Rhizo/WRC15_18Rhizo.opti_mcc.shared"
@@ -114,6 +118,15 @@ fun_metaotu <- cbind(meta, fungal_otu.rel)
 rownames(fun_metaotu) <- meta$sample
 colnames(fun_metaotu)
 
+#separate M vs MF for Mantel tests later
+fun.2018.metaotu.M <- subset(fun_metaotu, treatment == "M")
+fun.2018.metaotu.MF <- subset(fun_metaotu, treatment == "MF")
+
+#remove metadata for fungal OTU by treatment only - use for Mantel test later
+fun.2018.otu <- subset(fun_metaotu[,-c(1:26)])
+fun.2018.otu.M <- subset(fun.2018.metaotu.M[,-c(1:26)])
+fun.2018.otu.MF <- subset(fun.2018.metaotu.MF[,-c(1:26)])
+
 #PERMANOVA with source and treatment as factors
 #Among all treatments source (soil source) and treatment
 fun_metaotu.ad <- adonis(fun_metaotu[,-c(1:26)] ~treatment, method = "bray", data = fun_metaotu, perm=1000, set.seed=42)
@@ -134,10 +147,10 @@ explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
 explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
 sum.eigb <- sum(explainvar1b, explainvar2b)
 
-explainvar1b #34.3
+explainvar1b #34.7
 explainvar2b #18.8
 ```
-```{r Ordination (PCoA) - fungi, include=FALSE}
+```{r Ordination (PCoA) - fungal, include=FALSE}
 # Principal Coordinates Analysis - even blocks only, mowed only, bulk only
 
 pcoa.groups <- paste(fun_metaotu$treatment)
@@ -174,11 +187,11 @@ plot1a + theme(panel.grid.major = element_blank(),
         axis.text.x = element_text(size=14), 
         panel.border = element_rect(colour = "black", size = 1.25)) + 
   theme(axis.ticks.length = unit(0.3, "cm")) + 
-        xlab("PCoA 1 (34.3%)") + ylab("PCoA 2 (18.8%)") +
+        xlab("PCoA 1 (34.7%)") + ylab("PCoA 2 (18.8%)") +
         labs(colour = "Treatment") +
     guides(colour = guide_legend(override.aes = list(pch=16, size = 4))) +
     ggtitle("Fungal Community Composition (2018)")
-ggsave("../figures/2018.fung.ordination.bulk.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/2018.fung.ordination.bulk.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE) #do not change this code
 ```
 
 ```{r fungal Presence_Absence and Species richness, include =FALSE }
@@ -204,16 +217,18 @@ ct <- as.data.frame(t(c))
 meta$fun.s.obs <- ct$S.obs
 meta$fun.s.chao1 <- ct$S.chao1
 meta$fun.se.chao1 <- ct$se.chao1
+colnames(meta) #total columns is 29
 
 #interaction variable so can use Tukey
 #i <- with(meta, interaction(treatment, source))
 
-fun.richness.lm <- aov(fun.s.chao1 ~ treatment, data = meta)
+#plot fun.s.obs (OTU richness)
+fun.richness.lm <- aov(fun.s.obs ~ treatment, data = meta)
 plot(fun.richness.lm)
 anova(fun.richness.lm)
 
 #Plot
-p <- ggplot(meta, aes(x=treatment, y=fun.s.chao1, color=as.factor(treatment)))+ geom_boxplot() +
+p <- ggplot(meta, aes(x=treatment, y=fun.s.obs, color=as.factor(treatment)))+ geom_boxplot() +
       geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) 
 p1=p+geom_smooth(method="lm")
 f_chao<-p1 + theme_bw() + 
@@ -227,12 +242,12 @@ f_chao<-p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("M", "MF"), labels=c("unfertilized", "fertilized"))+
-     ggtitle("Fungal Chao Richness (2018)")
+     ggtitle("Fungal OTU Richness (2018)")
 f_chao
-ggsave("../figures/2018.bacteria.chao1.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/2018.fungal.richness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE) #do not change this code
 ```
 
-```{r diversity metrics - fun calculate diversity and evenness}
+```{r diversity metrics - calculate fungal diversity and evenness}
 # Calculate diversity metrics
 fun.shannon <- vegan::diversity(fungal_otu, "shannon")
 fun.simp <- vegan::diversity(fungal_otu, "simpson")
@@ -245,9 +260,10 @@ meta$fun.shannon <- fun.shannon
 meta$fun.J <- fun.simp
 meta$fun.simp <- fun.invsimp
 meta$fun.invsimp <- fun.J
+colnames(meta) #total columns is 33
 ```
 
-```{r diversity metrics - fungal display shannon }
+```{r diversity metrics - display fungal shannon }
 #Run richness first. interaction, levels, and treatments for plotting set there
 fun.shannon.lm <- aov(fun.shannon ~ treatment, data = meta)
 plot(fun.shannon.lm)
@@ -281,9 +297,11 @@ PCC.2018 <- subset(PCC, treatment == "M" | treatment == "MF")
 PCC.2018 <- cbind(design$block,PCC.2018)
 PCC.2018 <- PCC.2018 %>% filter(design$block=='2'|design$block=='4'|design$block=='6'|design$block=='8')
 
-PCC.2018b <- PCC.2018[,-c(1:3,87)]
+PCC.2018b <- PCC.2018[,-c(1:3)]
 labels(PCC.2018b)
 PCC.2018a <- PCC.2018b[, which(colSums(PCC.2018b) > 0)]
+design.even <- PCC.2018[,c(1:3)]
+PCC.2018.even <- cbind(design.even,PCC.2018a) 
 ```
 # Diversity Metrics - Hypothesis Testing
 ```{r Diversity Metrics - Plant, echo=TRUE}
@@ -309,12 +327,15 @@ diversity.plant.even <- cbind(meta,richness,shannon,simp.even,J)
 meta$plant.shannon <- diversity.plant.even$shannon
 meta$plant.J <- diversity.plant.even$J
 meta$plant.simp <- diversity.plant.even$simp.even
+meta$plant.rich <- diversity.plant.even$rich.even
+colnames(meta) #total columns is 36
+
 ```
 
 # Diversity Metrics - Hypothesis Testing
 ```{r Hypothesis Testing - Plant, echo=TRUE}
 library(lmerTest)
-plant.shannon.lm <- aov(shannon ~ treatment, data = diversity.plant.even)
+plant.shannon.lm <- aov(plant.shannon ~ treatment, data = meta)
 plot(fun.shannon.lm)
 anova(fun.shannon.lm)
 ```
@@ -322,7 +343,7 @@ anova(fun.shannon.lm)
 #Plot shannon diversity 
 ```{r Plot - Plant Shannon Diversity, echo=TRUE}
 # Graphing Shannon Diversity
-p <- ggplot(diversity.plant.even, aes(x=treatment, y=shannon, color=as.factor(treatment)))+ geom_boxplot() +
+p <- ggplot(meta, aes(x=treatment, y=plant.shannon, color=as.factor(treatment)))+ geom_boxplot() +
       geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) 
 p1=p+geom_smooth(method="lm")
 shannon.plant <-p1 + theme_bw() + 
@@ -336,20 +357,20 @@ shannon.plant <-p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("M", "MF"), labels=c("unfertilized", "fertilized"))+
-    ggtitle("Plant Diversity (2018)")
+    ggtitle("Plant Diversity (2018 - wet)")
 shannon.plant
 ggsave("../figures/2018.plant.shannon.even.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
-# Simple Hypothesis Testing - Microbes
+# Simple Hypothesis Testing - Plants
 ```{r perMANOVA - Plant, echo=TRUE}
 #PERMANOVA
-adonis = adonis(PCC.2018[,-c(1:3,87)]~treatment, method = "bray", data = PCC.2018, perm=1000)
+adonis = adonis(PCC.2018.even[,-c(1:3)]~treatment, method = "bray", data = PCC.2018.even, perm=1000)
 adonis
 ```
 # Plant Ordinations
-```{r Ordination (PCoA) - plant, include=FALSE}
+```{r Ordination (PCoA) - Plant, include=FALSE}
 # Principal Coordinates Analysis
-dataREL.dist <- vegdist(PCC.2018[,-c(1:3,87)], method="bray")
+dataREL.dist <- vegdist(PCC.2018.even[,-c(1:3)], method="bray")
 
 pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
   # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -363,9 +384,9 @@ explainvar1b #54.3
 explainvar2b #23.2
 ```
 
-```{r Ordination (PCoA) - plant plot, include=FALSE}
+```{r Ordination (PCoA) - Plant, include=FALSE}
 # Principal Coordinates Analysis - plants
-pcoa.groups <- paste(PCC.2018$treatment)
+pcoa.groups <- paste(PCC.2018.even$treatment)
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
 
 # Calculate Centroids (mean and SE)
@@ -403,7 +424,7 @@ plot2a + theme(panel.grid.major = element_blank(),
         labs(colour = "Treatment") +
     guides(colour = guide_legend(override.aes = list(pch=16, size = 4))) +
     ggtitle("Plant Community Composition (2018 - wet)")
-ggsave("../figures/2018.plant.even.ordination.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+ggsave("../figures/2018.plant.even.ordination.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 ## Bacterial Data - mowed - even only
@@ -475,7 +496,7 @@ otu.rare <- rrarefy(otu.2, min.N)
 #rarefy returns a species richness estimate in a random subsample of selected size
 otu.rare.rich <- rarefy(x = otu.2, sample=min.N, se=T)
 #Plot rarefaction curve
-###I am not sure how to interpret this. I think it suggests that I did not capture all of the diversity? 
+###suggests that we did not capture all of the diversity b/c the accumulation curve does not level off or flatten - rather, it continues to increase
 rarecurve(x = otu.2, step = 20, col="blue", cex=0.6, las=1)
 abline(0,1,col='red')
 text(1000,1000,"1:1",pos=2, col='red')
@@ -491,14 +512,7 @@ for(i in 1:dim(otu.rare)[1]){
 
 #Combine experimental deisng meta data with OTU relative abundance data
 metaotu <- cbind(meta, otu.2.rel)
-#Where does otu data begin, remove for PERMANOVA
-#metaotu[1,20:21]
-
-#PERMANOVA with source and treatment as factors
-#Among all treatments source (soil source) and treatment
-metaotu.ad <- adonis(metaotu[,-c(1:36)] ~ treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
-
-metaotu.ad 
+#Where do otu data begin, remove for PERMANOVA
 
 ```
 
@@ -517,7 +531,7 @@ metaotu.2[,cols]<-lapply(metaotu.2[,cols],as.numeric)
 #head(metaotu.2)
 ```
 
-```{r diversity metrics - bact calculate diversity and evenness}
+```{r diversity metrics - calculate diversity and evenness}
 # Calculate diversity metrics
 bac.shannon <- vegan::diversity(otu.rare, "shannon")
 bac.simp <- vegan::diversity(otu.rare, "simpson")
@@ -526,11 +540,16 @@ bac.invsimp <-vegan::diversity(otu.rare, "invsimpson")
 # Pielous evenness (uses presence/absence data)
 bac.J <- bac.shannon/log(specnumber(otu.2.PA[,-c(1:1)]))
 
+#OTU richness
+bac.richness <- rowSums((otu.2.PA >= 1))
+
 #Adding diversity fields to dataset
 meta$bac.shannon <- bac.shannon
 meta$bac.J <- bac.J
 meta$bac.simp <- bac.simp
 meta$bac.invsimp <- bac.invsimp
+meta$bac.richness <- bac.richness
+colnames(meta) #total non-OTU columns is 41
 ```
 
 # Diversity Metrics - Hypothesis Testing
@@ -542,7 +561,7 @@ anova(bac.shannon.lm)
 ```
 
 #Plot shannon diversity - bacteria
-```{r Plot - Shannon Diversity, echo=TRUE}
+```{r Plot - Bacteria Shannon Diversity, echo=TRUE}
 # Graphing Shannon Diversity
 p <- ggplot(meta, aes(x=treatment, y=bac.shannon, color=as.factor(treatment)))+ geom_boxplot() +
       geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) 
@@ -562,10 +581,41 @@ bac.shannon<-p1 + theme_bw() +
 bac.shannon
 ggsave("../figures/2018.bacteria.even.shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
+# Diversity Metrics - Hypothesis Testing
+```{r Hypothesis Testing - Bacteria. Richness, echo=TRUE}
+library(lmerTest)
+bac.richness.lm <- aov(bac.richness ~ treatment, data = meta)
+plot(bac.richness.lm)
+anova(bac.richness.lm)
+```
+
+#Plot OTU richness - bacteria
+```{r Plot - Bacterial OTU richness, echo=TRUE}
+# Graphing Shannon Diversity
+p <- ggplot(meta, aes(x=treatment, y=bac.richness, color=as.factor(treatment)))+ geom_boxplot() +
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) 
+p1=p+geom_smooth(method="lm")
+bac.shannon<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
+          size=14), panel.border = element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Shannon Diversity Index (H')") + 
+    theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", size=1)) +
+    scale_x_discrete(breaks=c("M", "MF"), labels=c("unfertilized", "fertilized")) +
+    ggtitle("Bacterial OTU Richness (2018 - wet)")
+bac.shannon
+ggsave("../figures/2018.bacteria.even.richness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
 
 # Bacterial Ordinations
 ```{r Ordination (PCoA) - Bacteria, include=FALSE}
-#metaotu.ad <- adonis(metaotu[,-c(1:33)] ~ treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
+#PERMANOVA
+metaotu.ad <- adonis(metaotu[,-c(1:36)] ~ treatment, method = "bray", data = metaotu, perm=1000, set.seed=42)
+metaotu.ad 
 
 # Principal Coordinates Analysis
 dataREL.dist <- vegdist(metaotu[,-c(1:36)], method="bray")
@@ -578,11 +628,11 @@ explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
 explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
 sum.eigb <- sum(explainvar1b, explainvar2b)
 
-explainvar1b #38.1
-explainvar2b #23.3
+explainvar1b #38.4
+explainvar2b #23.2
 ```
 
-```{r Ordination (PCoA) - Bacteria plot, include=FALSE}
+```{r Ordination (PCoA) - Bacteria, include=FALSE}
 # Principal Coordinates Analysis
 pcoa.groups <- paste(metaotu$treatment)
 pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
@@ -618,44 +668,52 @@ plot1a + theme(panel.grid.major = element_blank(),
         axis.text.x = element_text(size=14), 
         panel.border = element_rect(colour = "black", size = 1.25)) + 
   theme(axis.ticks.length = unit(0.3, "cm")) + 
-        xlab("PCoA 1 (38.1%)") + ylab("PCoA 2 (23.3%)") +
+        xlab("PCoA 1 (38.4%)") + ylab("PCoA 2 (23.2)") +
         labs(colour = "Treatment") +
     guides(colour = guide_legend(override.aes = list(pch=16, size = 4)),
            shape = guide_legend(override.aes = list(size = 4))) +
+    scale_x_discrete(breaks=c("M", "MF"), labels=c("unfertilized", "fertilized")) +
     ggtitle("Bacterial Community Composition (2018 - wet)")
 ggsave("../figures/2018.bact.ordination.bulk.even.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 # CORRELATIONS Plant - Bacteria - wet (block=even)
 ```{r mantel test, include=FALSE}
+colnames(metaotu)  #total non-OTU columns is 36
+
+dist.plant <- vegdist(PCC.2018.even[,-c(1:3)], method="bray")
+dist.bac <- vegdist(metaotu[,-c(1:36)], method="bray")
+
+#MANTEL - all even blocks
+mantel.rtest(dist.plant, dist.bac, nrepet = 999) #all treatments and ditch included - Mantel r = 0.645, p = 0.004
+
 #separate by treatment
 
-PCC.2018.M <- subset(PCC.2018, treatment == "M")
-PCC.2018.MF <- subset(PCC.2018, treatment == "MF")
-dist.plant.M <- vegdist(PCC.2018.M[,-c(1:3,87)], method="bray")
-dist.plant.MF <- vegdist(PCC.2018.MF[,-c(1:3,87)], method="bray")
+##PLANT
+PCC.2018.M <- subset(PCC.2018.even, treatment == "M")
+PCC.2018.MF <- subset(PCC.2018.even, treatment == "MF")
+dist.plant.M <- vegdist(PCC.2018.M[,-c(1:3)], method="bray")
+dist.plant.MF <- vegdist(PCC.2018.MF[,-c(1:3)], method="bray")
 
+##BACTERIA
 bac.2018.M <- subset(metaotu, treatment == "M")
 bac.2018.MF <- subset(metaotu, treatment == "MF")
-dist.bac.M <- vegdist(bac.2018.M[,-c(1:33)], method="bray")
-dist.bac.MF <- vegdist(bac.2018.MF[,-c(1:33)], method="bray")
+dist.bac.M <- vegdist(bac.2018.M[,-c(1:36)], method="bray")
+dist.bac.MF <- vegdist(bac.2018.MF[,-c(1:36)], method="bray")
 
+# MANTEL TESTS - even blocks only 
+mantel.rtest(dist.plant, dist.bac, nrepet = 999) # mowed only: Mantel r = 0.645, p = 0.003
+mantel.rtest(dist.plant.M, dist.bac.M, nrepet = 999) # mowed only: Mantel r = 0.553, p = 0.163
+mantel.rtest(dist.plant.MF, dist.bac.MF, nrepet = 999) # mowed/fert: Mantel r = 0.408, p = 0.245
 
-dist.plant <- vegdist(PCC.2018[,-c(1:3,87)], method="bray")
-dist.bac <- vegdist(metaotu[,-c(1:33)], method="bray")
-
-# MANTEL TESTS - even blocks only
-mantel.rtest(dist.plant, dist.bac, nrepet = 999) #all treatments and ditch included - Mantel r = 0.692, p = 0.004
-mantel.rtest(dist.plant.M, dist.bac.M, nrepet = 999) # mowed only: Mantel r = 0.286, p = 0.277
-mantel.rtest(dist.plant.MF, dist.bac.MF, nrepet = 999) # mowed/fert: Mantel r = 0.115, p = 0.367
-
-# correlation alpha diversity
+# correlation alpha diversity 
+colnames(meta)
 meta.M <- subset(meta, treatment == "M")
 meta.MF <- subset(meta, treatment == "MF")
 
-cor.test(meta$plant.shannon, meta$bac.shannon) # ALL: Pearsonn rho = -0.920, p = 0.0009
-cor.test(meta.M$plant.shannon, meta.M$bac.shannon) # ALL: Pearsonn rho = -0.475, p = 0.525
-cor.test(meta.MF$plant.shannon, meta.MF$bac.shannon) # ALL: Pearsonn rho = -0.934, p = 0.065
+cor.test(meta$plant.shannon, meta$bac.shannon) # ALL: Pearsonn rho = -0.926, p = 0.0009
+cor.test(meta.M$plant.shannon, meta.M$bac.shannon) # ALL: Pearsonn rho = -0.452, p = 0.548
+cor.test(meta.MF$plant.shannon, meta.MF$bac.shannon) # ALL: Pearsonn rho = -0.932, p = 0.068
 
 p <- ggplot(meta, aes(x=plant.shannon, y=bac.shannon, color=treatment)) +
   scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) +  
@@ -673,6 +731,94 @@ shannon.cor <- p1 + theme_bw() +
 shannon.cor
 ggsave("../figures/2018.plant.bact.shannon.even.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
+# CORRELATIONS Plant - Fungal - wet (block=even)
+```{r mantel test, include=FALSE}
 
-## Repeat for plant-fungal
-## Repeat for plant-carbon metabolic profile
+##FUNGAL
+#fun_metaotu <- cbind(meta, fungal_otu.rel)
+#fun.2018.otu <- subset(fun_metaotu[,-c(1:26)])
+
+##separate M vs MF for Mantel tests later
+#fun.2018.metaotu.M <- subset(fun_metaotu, treatment == "M")
+#fun.2018.metaotu.MF <- subset(fun_metaotu, treatment == "MF")
+#fun.2018.otu.M <- subset(fun.2018.metaotu.M[,-c(1:26)])
+#fun.2018.otu.MF <- subset(fun.2018.metaotu.MF[,-c(1:26)])
+
+dist.fungal <- vegdist(fun.2018.otu, method="bray")
+dist.fungal.M <- vegdist(fun.2018.otu.M, method="bray")
+dist.fungal.MF <- vegdist(fun.2018.otu.MF, method="bray")
+
+##PLANT - completed in previous chunk
+#dist.plant <- vegdist(PCC.2018[,-c(1:3)], method="bray")
+#dist.plant.M <- vegdist(PCC.2018.M[,-c(1:3)], method="bray")
+#dist.plant.MF <- vegdist(PCC.2018.MF[,-c(1:3)], method="bray")
+
+# MANTEL TESTS
+mantel.rtest(dist.plant, dist.fungal, nrepet = 999) #ALL - Mantel r = 0.663, p = 0.002
+mantel.rtest(dist.plant.M, dist.fungal.M, nrepet = 999) #mowed only: Mantel r = 0.401, p = 0.283
+mantel.rtest(dist.plant.MF, dist.fungal.MF, nrepet = 999) #mowed/fert: Mantel r = 0.563, p = 0.074 
+
+# correlation shannon diversity
+cor.test(meta$fun.shannon, meta$plant.shannon) # ALL: Pearson rho = 0.183, p = 0.664
+cor.test(meta.M$fun.shannon, meta.M$plant.shannon) # mowed only: Pearson rho = -0.070, p = 0.930
+cor.test(meta.MF$fun.shannon, meta.MF$plant.shannon) # mowed/fert: Pearson rho = -0.268, p = 0.732
+ 
+# change the x and y to reflect plant and fungi
+p <- ggplot(meta, aes(x=plant.shannon, y=fun.shannon, color=treatment)) +
+  scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) +  
+  geom_point(size=4)
+p1=p+geom_smooth(method="lm")
+shannon.cor <- p1 + theme_bw() + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
+  theme(axis.title=element_text(vjust=1,size=16), 
+        axis.text=element_text(size=16), 
+        axis.text.x = element_text(vjust=0.65, hjust=0.5, size=16), 
+        panel.border = element_rect(colour = "black",size=1)) +
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  labs(x = "Plant Shannon Diversity Index (H')", y = "Fungal Shannon Diversity Index (H')") +
+  theme(strip.text.x = element_text(size=16, face="bold"), strip.text.y = element_text(size=16, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1)) + ggtitle("Plant-Fungal Relationship (2018 - wet)")
+shannon.cor
+ggsave("../figures/2018.plant.fun.shannon.even.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
+
+
+## fungal/plant/bacterial and carbon metabolic profile
+```{r}
+file_path <- ("../data/2018WRC_CNPS_shannon.csv")
+CNPS_shannon <- read.csv(file_path)
+CNPS_shannon_bulk <- subset(CNPS_shannon, source=='bulk')
+meta$eco_shannon <- CNPS_shannon_bulk$eco_shannon
+
+meta.M <- subset(meta, treatment == "M")
+meta.MF <- subset(meta, treatment == "MF")
+
+cor.test(meta$fun.shannon, meta$eco_shannon) # ALL: Pearson rho = 0.075, p = 0.860
+cor.test(meta$plant.shannon, meta$eco_shannon) # ALL: Pearson rho = -0.023, p = 0.957
+cor.test(meta$bac.shannon, meta$eco_shannon) # ALL: Pearson rho = -0.030, p = 0.943
+
+```
+#Plot OTU richness - bacteria
+```{r Plot - carbon metabolic diversity, echo=TRUE}
+# Graphing carbon metabolic Shannon Diversity
+carbon.diversity.lm <- aov(eco_shannon ~ treatment, data = meta)
+plot(carbon.diversity.lm)
+anova(carbon.diversity.lm) #NS
+
+p <- ggplot(meta, aes(x=treatment, y=eco_shannon, color=as.factor(treatment)))+ geom_boxplot() +
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("mowed/unfertilized", "mowed/fertilized")) 
+p1=p+geom_smooth(method="lm")
+carbon.shannon<-p1 + theme_bw() + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
+          =element_line(colour = "black")) + 
+    theme(axis.title=element_text(vjust=1,size=14,face="bold"),
+          axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
+          size=14), panel.border = element_rect(colour = "black",size=1)) + 
+    theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Treatment", y = "Shannon Diversity Index (H')") + 
+    theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
+          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          fill="white", size=1)) +
+    scale_x_discrete(breaks=c("M", "MF"), labels=c("unfertilized", "fertilized")) +
+    ggtitle("Carbon Metabolic Diversity (2018 - wet)")
+carbon.shannon
+ggsave("../figures/2018.carbon.metabolic.shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+```
