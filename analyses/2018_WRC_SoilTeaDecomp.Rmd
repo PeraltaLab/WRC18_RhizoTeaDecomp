@@ -1,6 +1,5 @@
 ---
-title: Consequences of Long-term Fertilization on Wetland Microbial Community Structure
-  and Function
+title: Distinct microbial communities alter litter decomposition rates in a fertilized coastal plain wetland
 author: "Megan E. Koceja, Regina Bledsoe, Carol Goodwillie, Ariane L. Peralta"
 date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
 output:
@@ -49,17 +48,17 @@ dim(otu)
 otu <- otu[match(rownames(design), rownames(otu)),]
 all.equal(rownames(otu), rownames(design))
 
-# OTU table - remove otus w/ < 2 occurrences across all sites ### FIX
-#otu_removal <- otu[, which(colSums(otu) >= 2)]
-#dim(otu_removal)
+# OTU table - remove otus w/ < 2 occurrences across all sites
+otu_keep <- otu[, which(colSums(otu) >= 2)]
+dim(otu_keep)
 
-otus <- otu[, which(colSums(otu) >= 2)]
+#otus <- otu[, which(colSums(otu) >= 2)]
 
-aa <- (rowSums(otu_removal))
+aa <- (rowSums(otu_keep))
 aa # WRC18_10_Tea-155 reads WRC18_13_Tea-29 reads - removed
 
 # OTU table - removed low abundance samples
-otu_low_remov <- otu_removal[which(rowSums(otu_removal) >= 1000), ]
+otu_low_remov <- otu_keep[which(rowSums(otu_keep) >= 1000), ]
 dim(otu_low_remov)
 
 # OTU table - odd sites in bacterial composition data and remove in design file
@@ -92,7 +91,7 @@ for(i in 1:dim(otus.t)[1]){
 #PERMANOVA
 design.t$ditch <- as.factor(design.t$ditch)
 new.data.t <-cbind(design.t,dataREL.t)
-adonis = adonis(new.data.t[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data.t, perm=1000)
+adonis = adonis(new.data.t[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data.t, perm=1000, set.seed=42)
 adonis
 ```
 # str-fxn tea type only
@@ -215,6 +214,9 @@ ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/TBI.jpg", plot=last_plot(), devic
 
 # Tea Decomp Biomass
 ```{r Loading Files, include=FALSE}
+library("lmerTest")
+library("pbkrtest")
+
 #subset tea only rows
 tea <- subset(design, source != "bulk_soil")
 tea$ditch <- as.factor(tea$ditch)
@@ -237,7 +239,7 @@ write.csv(summary,"../data/massloss.summary.csv")
 #posthoc2
 
 # Graphing Percent Loss 
-ditch.labs <- c("wet_0ditch","dry_1ditch") #for facet labels
+ditch.labs <- c("wet plots farther from ditch","dry plots adjacent to ditch") #for facet labels
 names(ditch.labs) <- c("0", "1")
 
 p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment)))+ scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
@@ -268,7 +270,7 @@ p1 + theme_bw() +
           axis.text=element_text(size=14), axis.text.x = element_text(vjust=0.65, hjust=0.5, 
           size=14), panel.border = element_rect(colour = "black",size=1)) + 
     theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "Percent Loss") + 
-    theme(strip.text.x = element_text(size=14, face="bold"), strip.text.y =   
+    theme(strip.text.x = element_text(size=13, face="bold"), strip.text.y =   
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))
@@ -394,7 +396,7 @@ plot(fit)
 
 #Plot shannon diversity 
 ```{r Plot - Shannon Diversity, echo=TRUE}
-ditch.labs <- c("wet_0ditch", "dry_1ditch") #for facet labels
+ditch.labs <- c("wet plots farther from ditch", "dry plots adjacent to ditch") #for facet labels
 names(ditch.labs) <- c("0", "1")
 
 # Graphing Shannon Diversity
@@ -481,7 +483,7 @@ ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/alpha_diversity.jpg", plot=last_p
 ```{r perMANOVA - Bacteria - All sources, echo=TRUE}
 #PERMANOVA
 new.data <-cbind(design_final,dataREL)
-adonis = adonis(new.data[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data, perm=1000)
+adonis = adonis(new.data[,-c(1:16)]~source*treatment*ditch, method = "bray", data = new.data, perm=1000, set.seed=42)
 adonis
 ```
 # Bacterial Ordinations
