@@ -5,7 +5,7 @@ This study was conducted at the long-term fertilization and mowing experiment at
 
 This repository contains open-source code, data, & text files.
 
-For information regarding the project, please visit: Koceja, M.E., R.B. Bledsoe§, C. Goodwillie, and A.L. Peralta (In review). Nutrient enrichment increases soil bacterial diversity and decomposition rates of different litter types in a coastal plain wetland. *[bioRxiv pre-print](https://doi.org/10.1101/732883)*
+For information regarding the project, please visit: Koceja, M.E., R.B. Bledsoe§, C. Goodwillie, and A.L. Peralta (In revision). Distinct microbial communities alter litter decomposition rates in a fertilized coastal plain wetland. *[bioRxiv pre-print](https://doi.org/10.1101/732883)*
 
 Raw sequence files can be found at NCBI SRA [BioProject ID PRJNA635951](https://www.ncbi.nlm.nih.gov/bioproject/635951)
 
