@@ -201,15 +201,35 @@ dim(TBI)
 
 # relationship between S and k
 ```{r Loading Files, include=FALSE}
-#need to incorporate ditch
-TBI$trt <- as.factor(TBI$Treatment)
+TBI$Ditch_Trt <- as.factor(TBI$Ditch_Trt)
 TBI$ditch <- as.factor(TBI$Ditch)
+TBI$trt <- as.factor(TBI$Treatment)
 
+#different shapes
+p <- ggplot(TBI, aes(x=S, y=k, color=Ditch_Trt, shape=Ditch_Trt))+ 
+        scale_color_manual(name="Ditch + Treatment", 
+                           values=c("gray70","darkgreen","gray70","darkgreen"), 
+                            labels = c("wet_0ditch + unfertilized",
+                                      "wet_0ditch + fertilized",
+                                      "dry_1ditch + unfertilized",
+                                      "dry_1ditch + fertilized")) +
+  geom_point(size=5) + 
+        scale_shape_manual(name="Ditch + Treatment", values = c(18,16,23,21), 
+                           labels = c("wet_0ditch + unfertilized",
+                                      "wet_0ditch + fertilized",
+                                      "dry_1ditch + unfertilized",
+                                      "dry_1ditch + fertilized"))
+p1=p+geom_point()
+TBI <- p1 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +theme(axis.title=element_text(vjust=1,size=18), axis.text=element_text(size=18), axis.text.x = element_text(vjust=0.65, hjust=0.5, size=18), panel.border = element_rect(colour = "black",size=1)) + theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Stabilization factor (S)", y = "Decomposition rate (per day) (k)") + theme(strip.text.x = element_text(size=18, face="bold"), strip.text.y = element_text(size=18, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1))
+TBI
+
+ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/TBI.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
+
+#same shape
 p <- ggplot(TBI, aes(x=S, y=k, color=trt, shape=ditch))+ scale_color_manual(name="Treatment", values=c("gray70","darkgreen"), labels = c("unfertilized", "fertilized")) + geom_point(size=5) + scale_shape_manual(name="Ditch", values = c(16,21), labels = c("wet_0ditch","dry_1ditch"))
 p1=p+geom_point()
-TBI <- p1 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +theme(axis.title=element_text(vjust=1,size=18), axis.text=element_text(size=18), axis.text.x = element_text(vjust=0.65, hjust=0.5, size=18), panel.border = element_rect(colour = "black",size=1)) + theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Stabilization factor (S)", y = "Decomposition rate (k)") + theme(strip.text.x = element_text(size=18, face="bold"), strip.text.y = element_text(size=18, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1))
+TBI <- p1 + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +theme(axis.title=element_text(vjust=1,size=18), axis.text=element_text(size=18), axis.text.x = element_text(vjust=0.65, hjust=0.5, size=18), panel.border = element_rect(colour = "black",size=1)) + theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Stabilization factor (S)", y = "Decomposition rate (per day) (k)") + theme(strip.text.x = element_text(size=18, face="bold"), strip.text.y = element_text(size=18, face="bold"), strip.background = element_rect(colour="black", fill="white", size=1))
 TBI
-ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/TBI.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 # Tea Decomp Biomass
@@ -261,7 +281,8 @@ ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/PercentLoss_pointCI.png", plot=la
 p <- ggplot(tea, aes(x=source, y=Percent_Loss, color=as.factor(treatment))) + geom_boxplot() +
       geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) +   
       scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", 
-      "fertilized")) 
+      "fertilized")) +
+    labs(tag = "Source: P<0.001\nTreatment: P<0.001\nSource*Trt: P=0.045") 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -271,9 +292,10 @@ p1 + theme_bw() +
           size=14), panel.border = element_rect(colour = "black",size=1)) + 
     theme(axis.ticks.length=unit(0.3,"cm")) + labs(x = "Source", y = "Percent Loss") + 
     theme(strip.text.x = element_text(size=13, face="bold"), strip.text.y =   
-          element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
+          element_text(size=12, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
-    scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))
+    scale_x_discrete(breaks=c("green_tea", "rooibos_tea"), labels=c("green tea", "rooibos tea"))+
+     theme(plot.tag.position = c(1.01, .85)) + theme(plot.tag=element_text(hjust=1,size=10))
 
 ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/PercentLoss_boxplots.jpg", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
@@ -401,7 +423,7 @@ names(ditch.labs) <- c("0", "1")
 
 # Graphing Shannon Diversity
 p <- ggplot(diversity, aes(x=source, y=shannon, color=as.factor(treatment)))+ geom_boxplot() +
-      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) 
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) + labs(tag = "Source: P<0.0001\nTreatment: P<0.0001\nDitch: NS") 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 shannon<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -414,7 +436,10 @@ shannon<-p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
-          "rooibos"))
+          "rooibos")) + 
+    scale_y_continuous(limits =c(3.8,7.00),labels = scales::number_format(accuracy = 0.01)) +
+     theme(plot.tag.position = c(.99, .88)) + theme(plot.tag=element_text(hjust=1,size=10))
+
 shannon
 #ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/shannon.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
@@ -422,7 +447,7 @@ shannon
 ```{r Plot - OTU richness, echo=TRUE}
 # Graphing Richness
 p <- ggplot(diversity, aes(x=source, y=richness, color=as.factor(treatment)))+ geom_boxplot() +
-      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) 
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) + labs(tag = "Source: P<0.0001\nTreatment: P=0.009\nDitch: NS") 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 richness<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -435,16 +460,17 @@ richness<-p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
-          "rooibos"))
+          "rooibos"))+
+     theme(plot.tag.position = c(0.99, .77)) + theme(plot.tag=element_text(hjust=1,size=10))
 richness
 #ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/richness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
 
 #Plot Simpson's Evenness
-```{r Plot Simpson's Evenness, echo=TRUE}
+```{r Plot Simpsons Evenness, echo=TRUE}
 # Graphing Simpson's Evenness
 p <- ggplot(diversity, aes(x=source, y=simp.even, color=as.factor(treatment)))+ geom_boxplot() +
-      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) 
+      geom_point(aes(color=factor(treatment)), size=2, position = position_jitterdodge()) + scale_color_manual(name="Treatment", values=c("gray70", "darkgreen"), labels = c("unfertilized", "fertilized")) + labs(tag = "Source: P=0.035\nTreatment: P=0.005\nDitch: NS") 
 p1=p+geom_smooth(method="lm")+facet_wrap(~ditch)+facet_grid(. ~ ditch,labeller = labeller(ditch=ditch.labs))
 even<-p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -457,7 +483,9 @@ even<-p1 + theme_bw() +
           element_text(size=14, face="bold"), strip.background = element_rect(colour="black",
           fill="white", size=1)) +
     scale_x_discrete(breaks=c("bulk_soil", "green_tea", "rooibos_tea"), labels=c("soil", "green", 
-          "rooibos"))
+          "rooibos")) + 
+    scale_y_continuous(limits =c(0.00,0.12),labels = scales::number_format(accuracy = 0.01)) +
+     theme(plot.tag.position = c(.99, .88)) + theme(plot.tag=element_text(hjust=1,size=10))
 even 
 #ggsave("../figures/figs_2018_WRC_SoilTeaDecomp/evenness.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=7, height=5, dpi=300, limitsize=TRUE)
 ```
