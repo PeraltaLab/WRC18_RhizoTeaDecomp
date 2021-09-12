@@ -1999,6 +1999,9 @@ eco_joined_adj_sub <- eco_T %>%
 m <- melt(eco_joined_adj_sub)
 eco.cast<-cast(data=m, formula = sample ~ Substance,fun.aggregate = sum)
 
+#save biolog file
+write.csv(eco.cast, file="../data/WRC18_Rhizo/biolog_eco_T4.csv", row.names=TRUE)
+
 #Make sample column rownames and remove sample column
 rownames(eco.cast) = eco.cast$sample
 eco.cast <- eco.cast[, -c(1)]
