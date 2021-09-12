@@ -1,5 +1,5 @@
 # WRC18_RhizoTeaDecomp
-"Experimental nutrient enrichment increases bacterial diversity and decomposition rates of different litter types in a coastal plain wetland" 
+"Distinct microbial communities alter litter decomposition rates in a fertilized coastal plain wetland" 
 
 This study was conducted at the long-term fertilization and mowing experiment at West Research Campus, East Carolina University.
 
